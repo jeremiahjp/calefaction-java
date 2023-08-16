@@ -15,8 +15,8 @@ public class Calefaction {
 
 
     // fix this
-    final String DISCORD_API_KEY = "discordAPIKey";
-    String key = System.getProperty(DISCORD_API_KEY);
+    final static String DISCORD_API_KEY = "DiscordToken";
+    private final static String key = System.getenv(DISCORD_API_KEY);
 
     public static void main(String[] args) {
         //Start spring application
@@ -28,7 +28,7 @@ public class Calefaction {
 
     @Bean
     GatewayDiscordClient gatewayDiscordClient() {
-        return DiscordClientBuilder.create("MjY4MTcxNzQwODU1NjY0NjQx.WHQoZQ.z6msaS2majd2GotwN8b7QY2p9GI").build()
+        return DiscordClientBuilder.create(key).build()
             .gateway()
             .setInitialPresence(ignore -> ClientPresence.online(ClientActivity.watching("ur mom")))
             .login()
