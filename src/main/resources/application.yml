@@ -1,0 +1,5 @@
+logging:
+    level:
+        '[com.jp.calefaction]': DEBUG
+openweather:
+  baseUrl: "https://api.openweathermap.org/data/3.0/"

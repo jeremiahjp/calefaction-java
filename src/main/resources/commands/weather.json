@@ -1,0 +1,48 @@
+{
+    "name": "weather",
+    "description": "Gets the Weather (Work in progress)",
+    "options": [
+        {
+            "name": "location",
+            "description": "weather",
+            "type": 3,
+            "required": true
+        },
+        {
+            "name": "timeperiod",
+            "description": "time period", 
+            "type": 3, 
+            "required": true,
+            "choices": [
+                {
+                    "name": "hourly",
+                    "value": "hourly"
+                },
+                {
+                    "name": "daily",
+                    "value": "daily"
+                }
+            ]
+        },
+        {
+            "name": "units",
+            "description": "units", 
+            "type": 3, 
+            "required": true,
+            "choices": [
+                {
+                    "name": "imperial",
+                    "value": "F"
+                },
+                {
+                    "name": "metric",
+                    "value": "C"
+                },
+                {
+                    "name": "standard",
+                    "value": "SI"
+                }
+            ]
+        }
+    ]
+}
