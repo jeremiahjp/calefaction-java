@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.google.maps.model.GeocodingResult;
-import com.jp.calefaction.model.weather.OneCallv3;
+import com.jp.calefaction.model.weather.WeatherData;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
 import lombok.AllArgsConstructor;
@@ -43,7 +43,7 @@ public class WeatherService {
         }
 
         log.info("Fetching weather from openweatherapi");
-        OneCallv3 model = webClient.get()
+        WeatherData model = webClient.get()
             .uri(uriBuilder -> uriBuilder
                 .path(weatherURI)
                 .queryParam("lat", lat)
@@ -52,7 +52,7 @@ public class WeatherService {
                 .queryParam("units", units)
                 .build())
             .retrieve()
-            .bodyToMono(OneCallv3.class)
+            .bodyToMono(WeatherData.class)
             .block();
 
             model.setAddress(address);
@@ -66,7 +66,7 @@ public class WeatherService {
             }
     }
 
-    public EmbedCreateSpec createEmbed(OneCallv3 model) {
+    public EmbedCreateSpec createEmbed(WeatherData model) {
         String unit = getTempUnit();
         ZoneId zoneId = ZoneId.of(model.getTimezone());
 
@@ -78,7 +78,7 @@ public class WeatherService {
             .description(descUrl)
             .addField("Summary", model.getDaily().get(0).getSummary(), false)
             .addField("Temperature", String.valueOf(Math.round(model.getCurrent().getTemp())) + " " + unit, true)
-            .addField("Feel", String.valueOf(Math.round(model.getCurrent().getFeelsLike())) + " " + unit, true)
+            .addField("Feel", String.valueOf(Math.round(model.getCurrent().getFeels_like())) + " " + unit, true)
             .addField("Cloudiness", String.valueOf(Math.round(model.getCurrent().getClouds())) + "%", true)
             .addField("UV Index", String.valueOf(Math.round(model.getCurrent().getUvi())), true)
             .addField("Humidity", String.valueOf(model.getCurrent().getHumidity()) + "%", true)
