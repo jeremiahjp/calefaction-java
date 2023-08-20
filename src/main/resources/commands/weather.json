@@ -9,38 +9,22 @@
             "required": true
         },
         {
-            "name": "timeperiod",
-            "description": "time period", 
-            "type": 3, 
-            "required": true,
-            "choices": [
-                {
-                    "name": "hourly",
-                    "value": "hourly"
-                },
-                {
-                    "name": "daily",
-                    "value": "daily"
-                }
-            ]
-        },
-        {
             "name": "units",
             "description": "units", 
             "type": 3, 
             "required": true,
             "choices": [
                 {
-                    "name": "imperial",
-                    "value": "F"
+                    "name": "F",
+                    "value": "imperial"
                 },
                 {
-                    "name": "metric",
-                    "value": "C"
+                    "name": "C",
+                    "value": "metric"
                 },
                 {
-                    "name": "standard",
-                    "value": "SI"
+                    "name": "SI",
+                    "value": "standard"
                 }
             ]
         }

@@ -10,12 +10,20 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class WebClientConfig {
 
     @Value("${openweather.baseUrl}")
-    private String baseUrl;
+    private String openApiBaseUrl;
+
+    @Value("${catapi.baseUrl}")
+    private String catApiBaseUrl;
 
     @Bean
     @Qualifier("OpenWeather")
     WebClient createWebClientForOpenWeather() {
-        return WebClient.create(baseUrl);
+        return WebClient.create(openApiBaseUrl);
     }
-    
+
+    @Bean
+    @Qualifier("catapi")
+    WebClient createCatWebClient() {
+        return WebClient.create(catApiBaseUrl);
+    }
 }

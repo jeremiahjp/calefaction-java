@@ -1,11 +1,11 @@
 package com.jp.calefaction.model.weather;
 
 import java.util.List;
-
 import lombok.Data;
 
 @Data
 public class WeatherData {
+    private int index;
     private String address;
     private double lat;
     private double lon;
@@ -41,7 +41,7 @@ public class WeatherData {
         private long dt;
         private int precipitation;
     }
-    
+
     @Data
     public static class Hourly {
         private long dt;

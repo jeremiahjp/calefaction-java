@@ -1,22 +1,20 @@
 package com.jp.calefaction.commands;
 
-import java.io.IOException;
-
-import org.springframework.stereotype.Component;
-
 import com.google.maps.errors.ApiException;
 import com.google.maps.model.GeocodingResult;
+import com.jp.calefaction.model.weather.WeatherData;
 import com.jp.calefaction.service.GeoService;
 import com.jp.calefaction.service.WeatherService;
-
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.spec.EmbedCreateSpec;
+import java.io.IOException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -33,26 +31,21 @@ public class WeatherCommand implements SlashCommand {
     }
 
     @Override
-    public Mono<Void> handle(ChatInputInteractionEvent event) {         
-        String address = event.getOption("location")
-            .flatMap(ApplicationCommandInteractionOption::getValue)
-            .map(ApplicationCommandInteractionOptionValue::asString)
-            .get();
+    public Mono<Void> handle(ChatInputInteractionEvent event) {
 
-        String unit = event.getOption("units")
-            .flatMap(ApplicationCommandInteractionOption::getValue)
-            .map(ApplicationCommandInteractionOptionValue::asString)
-            .get();
+        var location = event.getOption("location")
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asString)
+                .get();
 
-        String timePeriod = event.getOption("timeperiod")
-            .flatMap(ApplicationCommandInteractionOption::getValue)
-            .map(ApplicationCommandInteractionOptionValue::asString)
-            .get();
-
-
+        var unit = event.getOption("units")
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asString)
+                .get();
+        log.info("location {}, units {}", location, unit);
         GeocodingResult[] result;
         try {
-            result = geoService.getGeoResults(address);
+            result = geoService.getGeoResults(location);
         } catch (ApiException | InterruptedException | IOException e) {
             log.error("Had a problem reaching out to Geo api. Error: {}", e.getMessage());
             return event.reply("There was a problem, try again in a few seconds");
@@ -63,18 +56,28 @@ public class WeatherCommand implements SlashCommand {
             return event.reply("Something happened. Try again later");
         }
 
-        EmbedCreateSpec embed = weatherService.getOpenWeatherFromCoordinates(result, unit);
+        long snowflake = event.getInteraction().getMember().get().getId().asLong();
 
+        StringBuilder buttonString = new StringBuilder();
+        buttonString.append(snowflake).append(",").append(location).append(",").append(unit);
 
-        String buttonTitle = "day";
-        if (timePeriod.equals("hourly")) {
-            buttonTitle = "hour";
-        }
+        WeatherData weatherData = weatherService.getOpenWeatherFromCoordinates(result, unit, buttonString.toString());
 
-        Button next = Button.success("next-btn", "next " + buttonTitle);
-        Button prev = Button.success("previous-btn", "prev " + buttonTitle);
+        EmbedCreateSpec embed = weatherService.createCurrentEmbed(weatherData);
+
+        // String buttonId = String.valueOf(snowflake) + location + unit + timePeriod;
+        Button threeDay = Button.primary(buttonString + ",3-day", "3-day");
+        Button fiveDay = Button.primary(buttonString + ",5-day", "5-day");
+        Button current = Button.success(buttonString + ",current", "Current");
+        Button overview = Button.primary(buttonString + ",overview", "Overview");
+        Button astronomy = Button.primary(buttonString + ",astronomy", "Astronomy");
+        // Button airQuality = Button.primary(buttonString + ",airquality", "Air Quality");
+        Button alerts = Button.danger(buttonString + ",alerts", "Alerts");
+        // Button forecastMinute = Button.primary(buttonString + ",forecastminute", "")
         return event.reply()
-            .withEmbeds(embed)
-            .withComponents(ActionRow.of(prev, next)); // just for fun
+                .withEmbeds(embed)
+                .withComponents(
+                        ActionRow.of(threeDay, fiveDay, current),
+                        ActionRow.of(overview, astronomy, alerts));
     }
 }
