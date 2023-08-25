@@ -15,16 +15,16 @@
             "required": true,
             "choices": [
                 {
-                    "name": "F",
+                    "name": "imperial",
                     "value": "imperial"
                 },
                 {
-                    "name": "C",
+                    "name": "metric",
                     "value": "metric"
                 },
                 {
-                    "name": "SI",
-                    "value": "standard"
+                    "name": "international",
+                    "value": "international"
                 }
             ]
         }

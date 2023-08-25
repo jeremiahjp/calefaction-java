@@ -5,3 +5,5 @@ openweather:
   baseUrl: "https://api.openweathermap.org/data/3.0/"
 catapi:
   baseUrl: "https://api.thecatapi.com/v1/images/search"
+ercot:
+    baseUrl: "https://www.ercot.com/api/1/services/read/dashboards/"

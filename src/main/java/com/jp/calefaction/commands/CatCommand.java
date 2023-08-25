@@ -4,9 +4,7 @@ import com.jp.calefaction.model.catapi.CatDto;
 import com.jp.calefaction.service.CatImageService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.spec.EmbedCreateSpec;
-
 import java.util.List;
-
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 

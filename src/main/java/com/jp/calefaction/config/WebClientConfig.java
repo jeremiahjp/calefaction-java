@@ -15,6 +15,9 @@ public class WebClientConfig {
     @Value("${catapi.baseUrl}")
     private String catApiBaseUrl;
 
+    @Value("${ercot.baseUrl}")
+    private String ercotFuelMix;
+
     @Bean
     @Qualifier("OpenWeather")
     WebClient createWebClientForOpenWeather() {
@@ -24,6 +27,12 @@ public class WebClientConfig {
     @Bean
     @Qualifier("catapi")
     WebClient createCatWebClient() {
+        return WebClient.create(catApiBaseUrl);
+    }
+
+    @Bean
+    @Qualifier("ercot")
+    WebClient createErcotWebClient() {
         return WebClient.create(catApiBaseUrl);
     }
 }

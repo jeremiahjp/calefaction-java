@@ -7,6 +7,7 @@ import lombok.Data;
 public class WeatherData {
     private int index;
     private String address;
+    private String unit;
     private double lat;
     private double lon;
     private String timezone;

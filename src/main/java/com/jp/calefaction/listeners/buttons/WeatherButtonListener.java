@@ -1,8 +1,7 @@
-// package com.jp.calefaction.listeners;
+// package com.jp.calefaction.listeners.buttons;
 
 // import com.jp.calefaction.model.weather.WeatherData;
 // import com.jp.calefaction.service.WeatherService;
-// import discord4j.core.GatewayDiscordClient;
 // import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 // import discord4j.core.object.component.ActionRow;
 // import discord4j.core.object.component.Button;
@@ -10,6 +9,7 @@
 // import java.util.ArrayList;
 // import java.util.List;
 // import java.util.stream.Collectors;
+// import lombok.AllArgsConstructor;
 // import lombok.extern.slf4j.Slf4j;
 // import org.springframework.cache.Cache;
 // import org.springframework.cache.Cache.ValueWrapper;
@@ -17,28 +17,21 @@
 // import org.springframework.stereotype.Component;
 // import reactor.core.publisher.Mono;
 
-// @Component
+// @Component("weatherButton")
 // @Slf4j
-// public class ButtonClickListener {
+// @AllArgsConstructor
+// public class WeatherButtonListener implements ButtonHandler {
 
 //     private final CacheManager cacheManager;
 //     private final WeatherService weatherService;
 //     private static final String OPENWEATHER_CACHE = "openweather_cache";
 
-//     public ButtonClickListener(GatewayDiscordClient client, CacheManager cacheManager, WeatherService weatherService)
-// {
-//         this.weatherService = weatherService;
-//         this.cacheManager = cacheManager;
-//         client.on(ButtonInteractionEvent.class, this::handle).subscribe();
+//     public String getCustomId(ButtonInteractionEvent event) {
+//         return event.getCustomId();
 //     }
 
 //     public Mono<Void> handle(ButtonInteractionEvent event) {
-
-//         // switch(event.getCustomId()) {
-//         //     case:
-//         // }
-
-//         log.info("customId of button clicked: {}", event.getCustomId());
+//         log.info("{} handle called", this.getClass().getSimpleName());
 
 //         String[] split = event.getCustomId().split(",");
 
