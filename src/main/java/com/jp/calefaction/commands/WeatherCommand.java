@@ -73,8 +73,6 @@ public class WeatherCommand implements SlashCommand {
         Button alerts = Button.danger(buttonString + ",alerts", "Alerts");
         return event.reply()
                 .withEmbeds(embedResponseService.createOverviewEmbed(weatherData, unit))
-                .withComponents(
-                        ActionRow.of(threeDay, fiveDay, current),
-                        ActionRow.of(overview, astronomy, alerts));
+                .withComponents(ActionRow.of(threeDay, fiveDay, current), ActionRow.of(overview, astronomy, alerts));
     }
 }

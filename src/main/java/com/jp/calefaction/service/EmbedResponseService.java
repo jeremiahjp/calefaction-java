@@ -47,22 +47,15 @@ public class EmbedResponseService {
                 .description(descUrl)
                 .addField("Summary", model.getDaily().get(index).getSummary(), false)
                 .addField(
-                        "Temperature",Math.round(model.getDaily().get(index).getTemp().getDay()) + degreesUnit,
+                        "Temperature",
+                        Math.round(model.getDaily().get(index).getTemp().getDay()) + degreesUnit,
                         true)
                 .addField(
-                        "Feel", Math.round(model.getDaily()
-                                        .get(index)
-                                        .getFeels_like()
-                                        .getDay()) + degreesUnit,
+                        "Feel",
+                        Math.round(model.getDaily().get(index).getFeels_like().getDay()) + degreesUnit,
                         true)
-                .addField(
-                        "Cloudiness",
-                        Math.round(model.getDaily().get(index).getClouds()) + "%",
-                        true)
-                .addField(
-                        "UV Index",
-                        Math.round(model.getDaily().get(index).getUvi()) + " of 11",
-                        true)
+                .addField("Cloudiness", Math.round(model.getDaily().get(index).getClouds()) + "%", true)
+                .addField("UV Index", Math.round(model.getDaily().get(index).getUvi()) + " of 11", true)
                 .addField("Humidity", model.getDaily().get(index).getHumidity() + "%", true)
                 .thumbnail("http://openweathermap.org/img/w/"
                         + model.getDaily().get(index).getWeather().get(0).getIcon()
@@ -97,24 +90,11 @@ public class EmbedResponseService {
                         "Summary",
                         model.getHourly().get(index).getWeather().get(0).getDescription(),
                         false)
-                .addField(
-                        "Temperature",
-                        Math.round(model.getHourly().get(index).getTemp()) + degreesUnit,
-                        true)
-                .addField(
-                        "Feel",
-                        Math.round(model.getHourly().get(index).getFeels_like()) + degreesUnit,
-                        true)
-                .addField(
-                        "Cloudiness",
-                        Math.round(model.getHourly().get(index).getClouds()) + "%",
-                        true)
-                .addField(
-                        "UV Index",
-                        Math.round(model.getHourly().get(index).getUvi()) + " of 11",
-                        true)
-                .addField(
-                        "Humidity", model.getHourly().get(index).getHumidity() + "%", true)
+                .addField("Temperature", Math.round(model.getHourly().get(index).getTemp()) + degreesUnit, true)
+                .addField("Feel", Math.round(model.getHourly().get(index).getFeels_like()) + degreesUnit, true)
+                .addField("Cloudiness", Math.round(model.getHourly().get(index).getClouds()) + "%", true)
+                .addField("UV Index", Math.round(model.getHourly().get(index).getUvi()) + " of 11", true)
+                .addField("Humidity", model.getHourly().get(index).getHumidity() + "%", true)
                 .thumbnail("http://openweathermap.org/img/w/"
                         + model.getHourly().get(index).getWeather().get(0).getIcon()
                         + ".png")
@@ -153,11 +133,9 @@ public class EmbedResponseService {
                                         .format(format)
                                 + "`",
                         "High: "
-                                + Math.round(
-                                        model.getDaily().get(0).getTemp().getMax()) +  degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(0).getTemp().getMax()) + degreesUnit + "\n"
                                 + "Low: "
-                                + Math.round(
-                                        model.getDaily().get(0).getTemp().getMin()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(0).getTemp().getMin()) + degreesUnit + "\n"
                                 + "Chance of rain: "
                                 + model.getDaily().get(0).getPop() * 100 + "%" + "\n"
                                 + "Morn real feel: "
@@ -179,11 +157,9 @@ public class EmbedResponseService {
                                         .format(format)
                                 + '`',
                         "High: "
-                                + Math.round(
-                                        model.getDaily().get(1).getTemp().getMax()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(1).getTemp().getMax()) + degreesUnit + "\n"
                                 + "Low: "
-                                + Math.round(
-                                        model.getDaily().get(1).getTemp().getMin()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(1).getTemp().getMin()) + degreesUnit + "\n"
                                 + "Chance of rain: "
                                 + model.getDaily().get(1).getPop() * 100 + "%" + "\n"
                                 + "Morn real feel: "
@@ -205,11 +181,9 @@ public class EmbedResponseService {
                                         .format(format)
                                 + '`',
                         "High: "
-                                + Math.round(
-                                        model.getDaily().get(2).getTemp().getMax()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(2).getTemp().getMax()) + degreesUnit + "\n"
                                 + "Low: "
-                                + Math.round(
-                                        model.getDaily().get(2).getTemp().getMin()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(2).getTemp().getMin()) + degreesUnit + "\n"
                                 + "Chance of rain: "
                                 + model.getDaily().get(2).getPop() * 100 + "%" + "\n"
                                 + "Morn real feel: "
@@ -221,7 +195,7 @@ public class EmbedResponseService {
                                 + "Eve real feel: "
                                 + Math.round(
                                         model.getDaily().get(2).getFeels_like().getEve()) + degreesUnit,
-                                        false)
+                        false)
                 .thumbnail("http://openweathermap.org/img/w/"
                         + model.getHourly().get(index).getWeather().get(0).getIcon()
                         + ".png")
@@ -260,11 +234,9 @@ public class EmbedResponseService {
                                         .format(format)
                                 + '`',
                         "High: "
-                                + Math.round(
-                                        model.getDaily().get(0).getTemp().getMax()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(0).getTemp().getMax()) + degreesUnit + "\n"
                                 + "Low: "
-                                + Math.round(
-                                        model.getDaily().get(0).getTemp().getMin()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(0).getTemp().getMin()) + degreesUnit + "\n"
                                 + "Chance of rain: "
                                 + model.getDaily().get(0).getPop() * 100 + "%" + "\n"
                                 + "Morn real feel: "
@@ -286,11 +258,9 @@ public class EmbedResponseService {
                                         .format(format)
                                 + '`',
                         "High: "
-                                + Math.round(
-                                        model.getDaily().get(1).getTemp().getMax()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(1).getTemp().getMax()) + degreesUnit + "\n"
                                 + "Low: "
-                                + Math.round(
-                                        model.getDaily().get(1).getTemp().getMin()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(1).getTemp().getMin()) + degreesUnit + "\n"
                                 + "Chance of rain: "
                                 + model.getDaily().get(1).getPop() * 100 + "%" + "\n"
                                 + "Morn real feel: "
@@ -312,11 +282,9 @@ public class EmbedResponseService {
                                         .format(format)
                                 + '`',
                         "High: "
-                                + Math.round(
-                                        model.getDaily().get(2).getTemp().getMax()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(2).getTemp().getMax()) + degreesUnit + "\n"
                                 + "Low: "
-                                + Math.round(
-                                        model.getDaily().get(2).getTemp().getMin()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(2).getTemp().getMin()) + degreesUnit + "\n"
                                 + "Chance of rain: "
                                 + model.getDaily().get(2).getPop() * 100 + "%" + "\n"
                                 + "Morn real feel: "
@@ -338,11 +306,9 @@ public class EmbedResponseService {
                                         .format(format)
                                 + '`',
                         "High: "
-                                + Math.round(
-                                        model.getDaily().get(3).getTemp().getMax()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(3).getTemp().getMax()) + degreesUnit + "\n"
                                 + "Low: "
-                                + Math.round(
-                                        model.getDaily().get(3).getTemp().getMin()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(3).getTemp().getMin()) + degreesUnit + "\n"
                                 + "Chance of rain: "
                                 + model.getDaily().get(3).getPop() * 100 + "%" + "\n"
                                 + "Morn real feel: "
@@ -364,11 +330,9 @@ public class EmbedResponseService {
                                         .format(format)
                                 + '`',
                         "High: "
-                                + Math.round(
-                                        model.getDaily().get(4).getTemp().getMax()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(4).getTemp().getMax()) + degreesUnit + "\n"
                                 + "Low: "
-                                + Math.round(
-                                        model.getDaily().get(4).getTemp().getMin()) + degreesUnit + "\n"
+                                + Math.round(model.getDaily().get(4).getTemp().getMin()) + degreesUnit + "\n"
                                 + "Chance of rain: "
                                 + model.getDaily().get(4).getPop() * 100 + "%" + "\n"
                                 + "Morn real feel: "
@@ -409,17 +373,10 @@ public class EmbedResponseService {
                         .format(format))
                 .description(descUrl)
                 .addField("Summary", model.getCurrent().getWeather().get(0).getDescription(), false)
-                .addField(
-                        "Temperature",
-                        Math.round(model.getCurrent().getTemp()) + degreesUnit,
-                        true)
+                .addField("Temperature", Math.round(model.getCurrent().getTemp()) + degreesUnit, true)
                 .addField("Feel", Math.round(model.getCurrent().getFeels_like()) + degreesUnit, true)
-                .addField(
-                        "Cloudiness",
-                        Math.round(model.getCurrent().getClouds()) + "%",
-                        true)
-                .addField(
-                        "UV Index", Math.round(model.getCurrent().getUvi()) + " of 11", true)
+                .addField("Cloudiness", Math.round(model.getCurrent().getClouds()) + "%", true)
+                .addField("UV Index", Math.round(model.getCurrent().getUvi()) + " of 11", true)
                 .addField("Humidity", model.getCurrent().getHumidity() + "%", true)
                 .thumbnail("http://openweathermap.org/img/w/"
                         + model.getCurrent().getWeather().get(0).getIcon()
