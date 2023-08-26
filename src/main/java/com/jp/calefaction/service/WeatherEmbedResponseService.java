@@ -2,20 +2,27 @@ package com.jp.calefaction.service;
 
 import com.jp.calefaction.model.weather.UnitSystem;
 import com.jp.calefaction.model.weather.WeatherData;
+import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
+import discord4j.core.object.component.ActionRow;
+import discord4j.core.object.component.Button;
+import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class EmbedResponseService {
+public class WeatherEmbedResponseService {
 
     @CachePut(value = "openweather_cache", key = "#cacheKey")
     public WeatherData updateCache(String cacheKey, WeatherData cachedObject) {
@@ -605,5 +612,24 @@ public class EmbedResponseService {
         } else {
             return "unknown";
         }
+    }
+
+    public List<Button> updateEmbedButtons(ComponentInteractionEvent event) {
+        return event.getMessage().get().getComponents().stream()
+                .filter(component -> component instanceof ActionRow)
+                .map(component -> (ActionRow) component)
+                .flatMap(actionRow -> actionRow.getChildren().stream())
+                .filter(item -> item instanceof Button)
+                .map(item -> (Button) item)
+                .map(button -> {
+                    return button.disabled(button.getCustomId().get().equals(event.getCustomId()));
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<LayoutComponent> updateEmbedComponents(ComponentInteractionEvent event) {
+        List<LayoutComponent> updatedComponents = new ArrayList<>();
+        updatedComponents.add(ActionRow.of(updateEmbedButtons(event)));
+        return updatedComponents;
     }
 }

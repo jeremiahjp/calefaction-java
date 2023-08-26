@@ -3,8 +3,8 @@ package com.jp.calefaction.commands;
 import com.google.maps.errors.ApiException;
 import com.google.maps.model.GeocodingResult;
 import com.jp.calefaction.model.weather.WeatherData;
-import com.jp.calefaction.service.EmbedResponseService;
 import com.jp.calefaction.service.GeoService;
+import com.jp.calefaction.service.WeatherEmbedResponseService;
 import com.jp.calefaction.service.WeatherService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -24,7 +24,7 @@ public class WeatherCommand implements SlashCommand {
 
     private final GeoService geoService;
     private final WeatherService weatherService;
-    private final EmbedResponseService embedResponseService;
+    private final WeatherEmbedResponseService embedResponseService;
 
     @Override
     public String getName() {
@@ -34,12 +34,12 @@ public class WeatherCommand implements SlashCommand {
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event) {
 
-        var location = event.getOption("location")
+        String location = event.getOption("location")
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .get();
 
-        var unit = event.getOption("units")
+        String unit = event.getOption("units")
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .get();
@@ -49,12 +49,12 @@ public class WeatherCommand implements SlashCommand {
             result = geoService.getGeoResults(location);
         } catch (ApiException | InterruptedException | IOException e) {
             log.error("Had a problem reaching out to Geo api. Error: {}", e.getMessage());
-            return event.reply("There was a problem, try again in a few seconds");
+            return event.reply("Had a problem reaching out to Geo api. Error: " + e.getMessage());
         }
 
         if (result.length == 0) {
             log.info("Result from Geo API was empty");
-            return event.reply("Something happened. Try again later");
+            return event.reply("`" + location + " returned zero results" + "`");
         }
 
         long snowflake = event.getInteraction().getMember().get().getId().asLong();
@@ -66,13 +66,12 @@ public class WeatherCommand implements SlashCommand {
 
         Button threeDay = Button.primary(buttonString + ",3-day", "3-day");
         Button fiveDay = Button.primary(buttonString + ",5-day", "5-day");
-        Button current = Button.success(buttonString + ",current", "Current");
         Button overview = Button.primary(buttonString + ",overview", "Overview").disabled(true);
         Button astronomy = Button.primary(buttonString + ",astronomy", "Astronomy");
         // Button airQuality = Button.primary(buttonString + ",airquality", "Air Quality");
         Button alerts = Button.danger(buttonString + ",alerts", "Alerts");
         return event.reply()
                 .withEmbeds(embedResponseService.createOverviewEmbed(weatherData, unit))
-                .withComponents(ActionRow.of(threeDay, fiveDay, current), ActionRow.of(overview, astronomy, alerts));
+                .withComponents(ActionRow.of(overview, threeDay, fiveDay, astronomy, alerts));
     }
 }
