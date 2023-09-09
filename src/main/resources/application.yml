@@ -1,3 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${database_url}:5432/discord
+    username: ${db_user}
+    password: ${db_pass}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
 logging:
     level:
         '[com.jp.calefaction]': INFO
