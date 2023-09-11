@@ -18,21 +18,7 @@
             "name": "check",
             "description": "check if posted", 
             "type": 3, 
-            "required": false,
-            "choices": [
-                {
-                    "name": "YouTube",
-                    "value": "YT"
-                },
-                {
-                    "name": "Steam",
-                    "value": "Steam"
-                },
-                {
-                    "name": "Vimeo",
-                    "value": "Vimeo"
-                }
-            ]
+            "required": false
         }
     ]
 }

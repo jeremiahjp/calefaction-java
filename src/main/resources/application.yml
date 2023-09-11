@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: ${RUNTIME_ENV:dev}
   datasource:
     url: jdbc:postgresql://${database_url}:5432/discord
     username: ${db_user}

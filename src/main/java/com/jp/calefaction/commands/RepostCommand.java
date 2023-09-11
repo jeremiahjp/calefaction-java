@@ -1,5 +1,7 @@
 package com.jp.calefaction.commands;
 
+import com.jp.calefaction.entity.OriginalMessages;
+import com.jp.calefaction.service.RepostEmbedService;
 import com.jp.calefaction.service.RepostService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -16,6 +18,7 @@ import reactor.core.publisher.Mono;
 public class RepostCommand implements SlashCommand {
 
     private final RepostService repostService;
+    private final RepostEmbedService repostEmbedService;
 
     @Override
     public String getName() {
@@ -24,12 +27,12 @@ public class RepostCommand implements SlashCommand {
 
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event) {
-        if (event.getInteraction().getUser().getId().asLong() == 94220323628523520L) {
-            log.info(
-                    "someone is probing this. user: {}",
-                    event.getInteraction().getUser().getId().asString());
-            return event.reply("work in progress.").withEphemeral(true);
-        }
+        // if (event.getInteraction().getUser().getId().asLong() != 94220323628523520L) {
+        //     log.info(
+        //             "someone is probing this. user: {}",
+        //             event.getInteraction().getUser().getId().asString());
+        //     return event.reply("work in progress.").withEphemeral(true);
+        // }
 
         Optional<String> top = event.getOption("top")
                 .flatMap(ApplicationCommandInteractionOption::getValue)
@@ -43,15 +46,26 @@ public class RepostCommand implements SlashCommand {
         if (top.isPresent() && check.isPresent()) {
             return event.reply("top: " + top + " check: " + check).withEphemeral(true);
         }
+        // command: /repost -top value
         if (top.isPresent() && !check.isPresent()) {
             return event.reply("top: " + top + " check: not present").withEphemeral(true);
         }
 
-        // Just check top
+        // command: /repost -check value
         if (!top.isPresent() && check.isPresent()) {
-            // List<String>
-            return event.reply(repostService.getAllUsers().get(0).getSnowflakeId());
-            // return event.reply("top is not present " + "check: " + check).withEphemeral(true);
+            String extracted = repostService.extractVideoId(check.get());
+            OriginalMessages message = repostService.getByIdAndGuild(
+                    extracted, event.getInteraction().getGuildId().get().asString());
+            if (message == null) {
+                return event.reply("nobody has posted this yet").withEphemeral(true);
+            }
+            if (message.getGuildId()
+                    .equals(event.getInteraction().getGuildId().get().asString())) {
+                return event.reply()
+                        .withEmbeds((repostEmbedService.createRepostEmbed(message)))
+                        .withEphemeral(true);
+            }
+            return event.reply("Oops, something happened").withEphemeral(true);
         }
         return event.reply("neither were specified").withEphemeral(true);
     }
