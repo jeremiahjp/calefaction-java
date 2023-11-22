@@ -16,10 +16,11 @@ public class CatImageService {
         this.webClient = webClient;
     }
 
-    public List<CatDto> fetchCatImage() {
+    public List<CatDto> fetchCatImage(String mimeType) {
 
         return webClient
                 .get()
+                .uri(uriBuilder -> uriBuilder.queryParam("mime_types", mimeType).build())
                 .header("x-api-key", API_KEY)
                 .retrieve()
                 .bodyToFlux(CatDto.class)

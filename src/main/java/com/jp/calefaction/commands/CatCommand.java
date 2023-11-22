@@ -3,12 +3,17 @@ package com.jp.calefaction.commands;
 import com.jp.calefaction.model.catapi.CatDto;
 import com.jp.calefaction.service.CatImageService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.object.command.ApplicationCommandInteractionOption;
+import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.spec.EmbedCreateSpec;
 import java.util.List;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
+@Slf4j
 public class CatCommand implements SlashCommand {
 
     private final CatImageService catImageService;
@@ -25,9 +30,18 @@ public class CatCommand implements SlashCommand {
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event) {
 
-        List<CatDto> catDto = catImageService.fetchCatImage();
-
-        return event.reply().withEmbeds(createEmbed(catDto.get(0)));
+        Optional<String> imageType = event.getOption("type")
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asString);
+        if (imageType.isPresent()) {
+            log.info("gif was present");
+            List<CatDto> catDto = catImageService.fetchCatImage(imageType.get());
+            return event.reply().withEmbeds(createEmbed(catDto.get(0)));
+        } else {
+            log.info("type not specified");
+            List<CatDto> catDto = catImageService.fetchCatImage("");
+            return event.reply().withEmbeds(createEmbed(catDto.get(0)));
+        }
     }
 
     public EmbedCreateSpec createEmbed(CatDto catDto) {

@@ -1,4 +1,18 @@
 {
     "name": "cat",
-    "description": "Random cat image for you"
+    "description": "Random cat image for you",
+    "options": [
+        {
+            "name": "type",
+            "description": "Type of image",
+            "type": 3,
+            "required": false,
+            "choices": [
+                {
+                    "name": "gif",
+                    "value": "gif"
+                }
+            ]
+        }
+    ]
 }
