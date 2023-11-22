@@ -15,6 +15,9 @@ public class WebClientConfig {
     @Value("${catapi.baseUrl}")
     private String catApiBaseUrl;
 
+    @Value("${dogapi.baseUrl}")
+    private String dogApiBaseUrl;
+
     @Value("${ercot.baseUrl}")
     private String ercotFuelMix;
 
@@ -28,6 +31,12 @@ public class WebClientConfig {
     @Qualifier("catapi")
     WebClient createCatWebClient() {
         return WebClient.create(catApiBaseUrl);
+    }
+
+    @Bean
+    @Qualifier("dogapi")
+    WebClient createDogWebClient() {
+        return WebClient.create(dogApiBaseUrl);
     }
 
     @Bean
