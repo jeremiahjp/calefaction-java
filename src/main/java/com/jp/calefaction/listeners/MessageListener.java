@@ -9,6 +9,7 @@ import com.jp.calefaction.service.RepostService;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.User;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,8 @@ public class MessageListener {
 
     private final RepostEmbedService repostEmbedService;
 
+    private final UrlReplyService urlReplyService;
+
     private final List<String> keywords = new ArrayList<>();
 
     String[] ytMatch = {"www.youtube.com/watch?v", "youtu.be/"};
@@ -40,20 +43,34 @@ public class MessageListener {
             GatewayDiscordClient gateway,
             RepostService repostService,
             UsersRepository usersRepository,
-            RepostEmbedService repostEmbedService) {
+            RepostEmbedService repostEmbedService,
+            UrlReplyService urlReplyService) {
         this.repostEmbedService = repostEmbedService;
         this.usersRepository = usersRepository;
         this.originalMessagesRepository = originalMessagesRepository;
         this.repostService = repostService;
+        this.urlReplyService = urlReplyService;
         keywords.add("YouTube");
         gateway.on(MessageCreateEvent.class, this::handle).subscribe();
     }
 
     public Mono<Void> handle(MessageCreateEvent event) {
+
+        Optional<User> author = event.getMessage().getAuthor();
+        if (author.isPresent() && author.get().isBot()) {
+            return Mono.empty();
+        }
         // if (event.getMessage().getAuthor().
         // MessageCreateEvent example
         // Mono<Void> handlePingCommand = gateway.on(MessageCreateEvent.class, event1 -> {
         Message message = event.getMessage();
+        String messageContent = message.getContent();
+        // Check for Twitter URLs
+        if (messageContent.contains("twitter.com") || messageContent.contains("x.com")) {
+            log.info("Saw message with twitter.com or x.com");
+            return urlReplyService.processAndReply(event, urlReplyService.extractUrl(messageContent));
+        }
+
         event.getMessage().getUserData();
         log.info(message.getContent());
         log.info(keywords.get(0));
