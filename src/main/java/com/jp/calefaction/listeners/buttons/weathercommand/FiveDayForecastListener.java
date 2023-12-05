@@ -38,7 +38,8 @@ public class FiveDayForecastListener implements ButtonHandler {
         WeatherData data = getWeatherData(cacheKey);
         if (data == null) {
             log.info("Cache evicted. Disabling buttons");
-            return event.edit("`Stale weather data. Submit a new command`").withComponents();
+            return event.edit("`Stale weather data. Submit a new command or click refresh`")
+                    .withComponents(embedResponseService.disableEmbedComponents(event));
         }
         return event.edit()
                 .withEmbeds(embedResponseService.createFiveDayEmbed(data, unit))

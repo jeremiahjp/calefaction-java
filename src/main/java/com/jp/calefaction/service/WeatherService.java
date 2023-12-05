@@ -4,6 +4,7 @@ import com.google.maps.model.GeocodingResult;
 import com.jp.calefaction.model.weather.WeatherData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -54,5 +55,10 @@ public class WeatherService {
     public WeatherData updateCache(String cacheKey, WeatherData cachedObject) {
         log.info("Caching entry for {}", cacheKey);
         return cachedObject;
+    }
+
+    @CacheEvict(value = "openweather_cache", key = "#cacheKey")
+    public void evictOpenWeatherCache(String cacheKey) {
+        log.info("Evicting from cache - {}", cacheKey);
     }
 }

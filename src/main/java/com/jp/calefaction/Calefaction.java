@@ -7,7 +7,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 public class Calefaction {
 
     public static void main(String[] args) {
-        // Start spring application
         new SpringApplicationBuilder(Calefaction.class).build().run(args);
     }
 }

@@ -24,6 +24,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class WeatherEmbedResponseService {
 
+    //     private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("EEEE M/d/yyyy");
+    private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("hh:mm a z");
+    private static final DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("EEEE M/d/yyyy");
+
     @CachePut(value = "openweather_cache", key = "#cacheKey")
     public WeatherData updateCache(String cacheKey, WeatherData cachedObject) {
         log.info("Caching entry for {}", cacheKey);
@@ -47,10 +51,8 @@ public class WeatherEmbedResponseService {
         return EmbedCreateSpec.builder()
                 .color(Color.BLUE)
                 .title((ZonedDateTime.ofInstant(
-                                Instant.ofEpochSecond(
-                                        model.getDaily().get(index).getDt()),
-                                zoneId))
-                        .toString())
+                                Instant.ofEpochSecond(model.getCurrent().getDt()), zoneId))
+                        .format(format))
                 .description(descUrl)
                 .addField("Summary", model.getDaily().get(index).getSummary(), false)
                 .addField(
@@ -88,10 +90,8 @@ public class WeatherEmbedResponseService {
         return EmbedCreateSpec.builder()
                 .color(Color.of(rand.nextFloat(), rand.nextFloat(), rand.nextFloat()))
                 .title((ZonedDateTime.ofInstant(
-                                Instant.ofEpochSecond(
-                                        model.getHourly().get(index).getDt()),
-                                zoneId))
-                        .toString())
+                                Instant.ofEpochSecond(model.getCurrent().getDt()), zoneId))
+                        .format(format))
                 .description(descUrl)
                 .addField(
                         "Summary",
@@ -113,7 +113,6 @@ public class WeatherEmbedResponseService {
         String degreesUnit = UnitSystem.valueOf(unit.toUpperCase()).getTemperatureUnit();
         ZoneId zoneId = ZoneId.of(model.getTimezone());
         int index = model.getIndex();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("EEEE M/d/yyyy");
         String descUrl = "[Weather in "
                 + model.getAddress()
                 + "]"
@@ -126,10 +125,8 @@ public class WeatherEmbedResponseService {
         return EmbedCreateSpec.builder()
                 .color(Color.of(rand.nextFloat(), rand.nextFloat(), rand.nextFloat()))
                 .title((ZonedDateTime.ofInstant(
-                                Instant.ofEpochSecond(
-                                        model.getHourly().get(index).getDt()),
-                                zoneId))
-                        .toString())
+                                Instant.ofEpochSecond(model.getCurrent().getDt()), zoneId)
+                        .format(format)))
                 .description(descUrl)
                 .addField(
                         "`"
@@ -137,7 +134,7 @@ public class WeatherEmbedResponseService {
                                                 Instant.ofEpochSecond(
                                                         model.getDaily().get(0).getDt()),
                                                 zoneId)
-                                        .format(format)
+                                        .format(dayFormatter)
                                 + "`",
                         "High: "
                                 + Math.round(model.getDaily().get(0).getTemp().getMax()) + degreesUnit + "\n"
@@ -161,7 +158,7 @@ public class WeatherEmbedResponseService {
                                                 Instant.ofEpochSecond(
                                                         model.getDaily().get(1).getDt()),
                                                 zoneId)
-                                        .format(format)
+                                        .format(dayFormatter)
                                 + '`',
                         "High: "
                                 + Math.round(model.getDaily().get(1).getTemp().getMax()) + degreesUnit + "\n"
@@ -185,7 +182,7 @@ public class WeatherEmbedResponseService {
                                                 Instant.ofEpochSecond(
                                                         model.getDaily().get(2).getDt()),
                                                 zoneId)
-                                        .format(format)
+                                        .format(dayFormatter)
                                 + '`',
                         "High: "
                                 + Math.round(model.getDaily().get(2).getTemp().getMax()) + degreesUnit + "\n"
@@ -214,7 +211,6 @@ public class WeatherEmbedResponseService {
         String degreesUnit = UnitSystem.valueOf(unit.toUpperCase()).getTemperatureUnit();
         ZoneId zoneId = ZoneId.of(model.getTimezone());
         int index = model.getIndex();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("EEEE M/d/yyyy");
         String descUrl = "[Weather in "
                 + model.getAddress()
                 + "]"
@@ -227,10 +223,8 @@ public class WeatherEmbedResponseService {
         return EmbedCreateSpec.builder()
                 .color(Color.of(rand.nextFloat(), rand.nextFloat(), rand.nextFloat()))
                 .title((ZonedDateTime.ofInstant(
-                                Instant.ofEpochSecond(
-                                        model.getHourly().get(index).getDt()),
-                                zoneId))
-                        .toString())
+                                Instant.ofEpochSecond(model.getCurrent().getDt()), zoneId)
+                        .format(format)))
                 .description(descUrl)
                 .addField(
                         '`'
@@ -238,7 +232,7 @@ public class WeatherEmbedResponseService {
                                                 Instant.ofEpochSecond(
                                                         model.getDaily().get(0).getDt()),
                                                 zoneId)
-                                        .format(format)
+                                        .format(dayFormatter)
                                 + '`',
                         "High: "
                                 + Math.round(model.getDaily().get(0).getTemp().getMax()) + degreesUnit + "\n"
@@ -262,7 +256,7 @@ public class WeatherEmbedResponseService {
                                                 Instant.ofEpochSecond(
                                                         model.getDaily().get(1).getDt()),
                                                 zoneId)
-                                        .format(format)
+                                        .format(dayFormatter)
                                 + '`',
                         "High: "
                                 + Math.round(model.getDaily().get(1).getTemp().getMax()) + degreesUnit + "\n"
@@ -286,7 +280,7 @@ public class WeatherEmbedResponseService {
                                                 Instant.ofEpochSecond(
                                                         model.getDaily().get(2).getDt()),
                                                 zoneId)
-                                        .format(format)
+                                        .format(dayFormatter)
                                 + '`',
                         "High: "
                                 + Math.round(model.getDaily().get(2).getTemp().getMax()) + degreesUnit + "\n"
@@ -310,7 +304,7 @@ public class WeatherEmbedResponseService {
                                                 Instant.ofEpochSecond(
                                                         model.getDaily().get(3).getDt()),
                                                 zoneId)
-                                        .format(format)
+                                        .format(dayFormatter)
                                 + '`',
                         "High: "
                                 + Math.round(model.getDaily().get(3).getTemp().getMax()) + degreesUnit + "\n"
@@ -334,7 +328,7 @@ public class WeatherEmbedResponseService {
                                                 Instant.ofEpochSecond(
                                                         model.getDaily().get(4).getDt()),
                                                 zoneId)
-                                        .format(format)
+                                        .format(dayFormatter)
                                 + '`',
                         "High: "
                                 + Math.round(model.getDaily().get(4).getTemp().getMax()) + degreesUnit + "\n"
@@ -362,7 +356,6 @@ public class WeatherEmbedResponseService {
     public EmbedCreateSpec createCurrentEmbed(WeatherData model, String unit) {
         String degreesUnit = UnitSystem.valueOf(unit.toUpperCase()).getTemperatureUnit();
         ZoneId zoneId = ZoneId.of(model.getTimezone());
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("hh:mm a z");
 
         String descUrl = "[Weather in "
                 + model.getAddress()
@@ -395,8 +388,6 @@ public class WeatherEmbedResponseService {
     public EmbedCreateSpec createAstronomyEmbed(WeatherData model) {
         ZoneId zoneId = ZoneId.of(model.getTimezone());
         int index = model.getIndex();
-
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("hh:mm a z");
         String descUrl = "[Weather in "
                 + model.getAddress()
                 + "]"
@@ -462,6 +453,21 @@ public class WeatherEmbedResponseService {
                 + ","
                 + model.getLon()
                 + ",13z)";
+        // this can be done better
+        if (model.getAlerts() == null || model.getAlerts().size() == 0) {
+            return EmbedCreateSpec.builder()
+                    .color(Color.RED)
+                    .title((ZonedDateTime.ofInstant(
+                                    Instant.ofEpochSecond(model.getCurrent().getDt()), zoneId)
+                            .format(format)))
+                    .description(descUrl)
+                    .addField("No alerts", "No alerts", true)
+                    .thumbnail("http://openweathermap.org/img/w/"
+                            + model.getCurrent().getWeather().get(0).getIcon()
+                            + ".png")
+                    .footer("Google Geo API & OpenWeather API", "")
+                    .build();
+        }
         String description = model.getAlerts().get(0).getDescription();
         String startedOn = "Started on `"
                 + ZonedDateTime.ofInstant(
@@ -512,7 +518,6 @@ public class WeatherEmbedResponseService {
 
     public EmbedCreateSpec createVerboseEmbed(WeatherData model, String unit) {
         ZoneId zoneId = ZoneId.of(model.getTimezone());
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("hh:mm a z");
         String descUrl = "[Weather in "
                 + model.getAddress()
                 + "]"
@@ -543,7 +548,6 @@ public class WeatherEmbedResponseService {
     public EmbedCreateSpec createOverviewEmbed(WeatherData model, String unit) {
         int index = 0;
         ZoneId zoneId = ZoneId.of(model.getTimezone());
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("hh:mm a z");
         String degreesUnit = UnitSystem.valueOf(unit.toUpperCase()).getTemperatureUnit();
         String speedUnit = UnitSystem.valueOf(unit.toUpperCase()).getSpeedUnit();
         String descUrl = "[Overiew for "
@@ -622,14 +626,54 @@ public class WeatherEmbedResponseService {
                 .filter(item -> item instanceof Button)
                 .map(item -> (Button) item)
                 .map(button -> {
-                    return button.disabled(button.getCustomId().get().equals(event.getCustomId()));
+                    String[] parts = button.getCustomId().get().split(",");
+                    String lastPart = parts[parts.length - 1];
+                    if (!"refresh".equals(lastPart)) { // We don't want to disable the refresh button
+                        return button.disabled(button.getCustomId().get().equals(event.getCustomId()));
+                    }
+                    return button;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<Button> disableAllExceptRefresh(ComponentInteractionEvent event) {
+        return event.getMessage().get().getComponents().stream()
+                .filter(component -> component instanceof ActionRow)
+                .map(component -> (ActionRow) component)
+                .flatMap(actionRow -> actionRow.getChildren().stream())
+                .filter(item -> item instanceof Button)
+                .map(item -> (Button) item)
+                .map(button -> {
+                    String[] parts = button.getCustomId().get().split(",");
+                    String lastPart = parts[parts.length - 1];
+                    return button.disabled(!lastPart.equals("refresh"));
                 })
                 .collect(Collectors.toList());
     }
 
     public List<LayoutComponent> updateEmbedComponents(ComponentInteractionEvent event) {
+        List<Button> updatedButtons = updateEmbedButtons(event);
         List<LayoutComponent> updatedComponents = new ArrayList<>();
-        updatedComponents.add(ActionRow.of(updateEmbedButtons(event)));
+
+        // Split the buttons into groups of up to 5 and add them to updatedComponents
+        for (int i = 0; i < updatedButtons.size(); i += 5) {
+            List<Button> actionRowButtons = updatedButtons.subList(i, Math.min(i + 5, updatedButtons.size()));
+            updatedComponents.add(ActionRow.of(actionRowButtons));
+        }
+
+        return updatedComponents;
+    }
+
+    public List<LayoutComponent> disableEmbedComponents(ComponentInteractionEvent event) {
+        List<Button> updatedButtons = disableAllExceptRefresh(event);
+        List<LayoutComponent> updatedComponents = new ArrayList<>();
+
+        // Split the buttons into groups of up to 5 and add them to updatedComponents
+        for (int i = 0; i < updatedButtons.size(); i += 5) {
+            List<Button> actionRowButtons = updatedButtons.subList(i, Math.min(i + 5, updatedButtons.size()));
+            updatedComponents.add(ActionRow.of(actionRowButtons));
+        }
+
         return updatedComponents;
     }
 }
