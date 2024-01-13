@@ -2,7 +2,7 @@ spring:
   profiles:
     active: ${RUNTIME_ENV:dev}
   datasource:
-    url: jdbc:postgresql://${database_url}:5432/discord
+    url: jdbc:postgresql://${database_url}:5431/discord
     username: ${db_user}
     password: ${db_pass}
   jpa:
