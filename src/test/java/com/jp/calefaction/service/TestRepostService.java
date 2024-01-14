@@ -105,4 +105,14 @@ public class TestRepostService {
         String actual = repostService.extractVideoId(testUrl);
         assertEquals(expected, actual);
     }
+
+    @Test
+    void contextForYTShorts() {
+        RepostService repostService = new RepostService(usersRepository, originalMessagesRepository);
+        String testUrl = "https://youtube.com/shorts/GA3-AhAMS8U check this out ";
+
+        String expected = "GA3-AhAMS8U";
+        String actual = repostService.extractVideoId(testUrl);
+        assertEquals(expected, actual);
+    }
 }

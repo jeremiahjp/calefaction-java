@@ -550,7 +550,7 @@ public class WeatherEmbedResponseService {
         ZoneId zoneId = ZoneId.of(model.getTimezone());
         String degreesUnit = UnitSystem.valueOf(unit.toUpperCase()).getTemperatureUnit();
         String speedUnit = UnitSystem.valueOf(unit.toUpperCase()).getSpeedUnit();
-        String descUrl = "[Overiew for "
+        String descUrl = "[Overview for "
                 + model.getAddress()
                 + "]"
                 + "(https://www.google.com/maps/@"

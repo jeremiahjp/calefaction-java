@@ -1,7 +1,11 @@
 package com.jp.calefaction.commands;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.maps.errors.ApiException;
 import com.google.maps.model.GeocodingResult;
+import com.jp.calefaction.model.weather.ButtonData;
+import com.jp.calefaction.model.weather.LocationData;
 import com.jp.calefaction.model.weather.WeatherData;
 import com.jp.calefaction.service.GeoService;
 import com.jp.calefaction.service.WeatherEmbedResponseService;
@@ -12,6 +16,7 @@ import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import java.io.IOException;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -25,6 +30,7 @@ public class WeatherCommand implements SlashCommand {
     private final GeoService geoService;
     private final WeatherService weatherService;
     private final WeatherEmbedResponseService embedResponseService;
+    private final ObjectMapper jsonMapper;
 
     @Override
     public String getName() {
@@ -44,35 +50,80 @@ public class WeatherCommand implements SlashCommand {
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .get();
         log.info("location {}, units {}", location, unit);
+
+        if (!isValidLength(location)) {
+            log.warn("Someone attempted to put an excessively long location");
+            return event.reply("The provided location " + location + " is too long. Try and shorten it.")
+                    .withEphemeral(true);
+        }
+
+        LocationData locData = new LocationData();
         GeocodingResult[] result;
         try {
             result = geoService.getGeoResults(location);
+            if (result.length == 0) {
+                log.info("Result from Geo API was empty");
+                return event.reply("`" + location + " returned zero results" + "`")
+                        .withEphemeral(true);
+            }
+            locData.setLat(result[0].geometry.location.lat);
+            locData.setLng(result[0].geometry.location.lng);
+            // locData.setAddress(result[0].formattedAddress);
         } catch (ApiException | InterruptedException | IOException e) {
             log.error("Had a problem reaching out to Geo api. Error: {}", e.getMessage());
-            return event.reply("Had a problem reaching out to Geo api. Error: " + e.getMessage());
+            return event.reply("Had a problem reaching out to Geo api. Error: " + e.getMessage())
+                    .withEphemeral(true);
         }
 
-        if (result.length == 0) {
-            log.info("Result from Geo API was empty");
-            return event.reply("`" + location + " returned zero results" + "`");
+        ButtonData buttonData = new ButtonData();
+        String buttonJson;
+        try {
+
+            String uuid = UUID.randomUUID().toString();
+            buttonData.setCacheId(uuid);
+            buttonData.setType("Overview");
+            buttonJson = jsonMapper.writeValueAsString(buttonData);
+            log.info("buttonjson {}", buttonJson);
+            Button overview = Button.primary(buttonJson, "Overview").disabled(true);
+
+            // We get the weather
+            WeatherData weatherData =
+                    weatherService.getOpenWeatherFromCoordinates(locData.getLat(), locData.getLng(), unit);
+            weatherData.setAddress((result[0].formattedAddress));
+            weatherService.updateCache(uuid, weatherData);
+
+            buttonData.setCacheId(uuid);
+            buttonData.setType("3-day");
+            buttonJson = jsonMapper.writeValueAsString(buttonData);
+            Button threeDay = Button.primary(buttonJson, "3-day");
+
+            buttonData.setType("5-day");
+            buttonJson = jsonMapper.writeValueAsString(buttonData);
+            Button fiveDay = Button.primary(buttonJson, "5-day");
+
+            buttonData.setType("Astronomy");
+            buttonJson = jsonMapper.writeValueAsString(buttonData);
+            Button astronomy = Button.primary(buttonJson, "Astronomy");
+
+            buttonData.setType("Alerts");
+            buttonJson = jsonMapper.writeValueAsString(buttonData);
+            Button alerts = Button.danger(buttonJson, "Alerts");
+
+            buttonData.setType("Refresh");
+            buttonJson = jsonMapper.writeValueAsString(buttonData);
+            Button refresh = Button.primary(buttonJson, "Refresh");
+
+            return event.reply()
+                    .withEmbeds(embedResponseService.createOverviewEmbed(weatherData, unit))
+                    .withComponents(
+                            ActionRow.of(overview, threeDay, fiveDay), ActionRow.of(astronomy, alerts, refresh));
+        } catch (JsonProcessingException e) {
+            log.error("Failed mapping the button json. Button map: {}", buttonData);
+            return event.reply("There was some error. It's been logged.").withEphemeral(true);
         }
+    }
 
-        long snowflake = event.getInteraction().getMember().get().getId().asLong();
-
-        StringBuilder buttonString = new StringBuilder();
-        buttonString.append(snowflake).append(",").append(location).append(",").append(unit);
-
-        WeatherData weatherData = weatherService.getOpenWeatherFromCoordinates(result, unit, buttonString.toString());
-
-        Button threeDay = Button.primary(buttonString + ",3-day", "3-day");
-        Button fiveDay = Button.primary(buttonString + ",5-day", "5-day");
-        Button overview = Button.primary(buttonString + ",overview", "Overview").disabled(true);
-        Button astronomy = Button.primary(buttonString + ",astronomy", "Astronomy");
-        // Button airQuality = Button.primary(buttonString + ",airquality", "Air Quality");
-        Button alerts = Button.danger(buttonString + ",alerts", "Alerts");
-        Button refresh = Button.primary(buttonString + ",refresh", "Refresh");
-        return event.reply()
-                .withEmbeds(embedResponseService.createOverviewEmbed(weatherData, unit))
-                .withComponents(ActionRow.of(overview, threeDay, fiveDay), ActionRow.of(astronomy, alerts, refresh));
+    private boolean isValidLength(String s) {
+        return s.length() <= 80; // arbitrary size that should be good. need better logic here
     }
 }

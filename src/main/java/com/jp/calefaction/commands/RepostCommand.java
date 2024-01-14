@@ -27,13 +27,6 @@ public class RepostCommand implements SlashCommand {
 
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event) {
-        // if (event.getInteraction().getUser().getId().asLong() != 94220323628523520L) {
-        //     log.info(
-        //             "someone is probing this. user: {}",
-        //             event.getInteraction().getUser().getId().asString());
-        //     return event.reply("work in progress.").withEphemeral(true);
-        // }
-
         Optional<String> top = event.getOption("top")
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString);
@@ -54,6 +47,7 @@ public class RepostCommand implements SlashCommand {
         // command: /repost -check value
         if (!top.isPresent() && check.isPresent()) {
             String extracted = repostService.extractVideoId(check.get());
+            log.info("Checking for repost with the value {}", extracted);
             OriginalMessages message = repostService.getByIdAndGuild(
                     extracted, event.getInteraction().getGuildId().get().asString());
             if (message == null) {

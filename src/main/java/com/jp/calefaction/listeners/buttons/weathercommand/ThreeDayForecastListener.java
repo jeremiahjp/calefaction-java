@@ -1,8 +1,12 @@
 package com.jp.calefaction.listeners.buttons.weathercommand;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jp.calefaction.listeners.buttons.ButtonHandler;
+import com.jp.calefaction.model.weather.ButtonData;
 import com.jp.calefaction.model.weather.WeatherData;
 import com.jp.calefaction.service.WeatherEmbedResponseService;
+import com.jp.calefaction.service.WeatherService;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +24,8 @@ public class ThreeDayForecastListener implements ButtonHandler {
     private final WeatherEmbedResponseService embedResponseService;
     private final CacheManager cacheManager;
     private static final String OPENWEATHER_CACHE = "openweather_cache";
+    private final ObjectMapper jsonMapper;
+    private final WeatherService weatherService;
 
     public String getCustomId(ButtonInteractionEvent event) {
         throw new UnsupportedOperationException("Unimplemented method 'getCustomId'");
@@ -27,26 +33,31 @@ public class ThreeDayForecastListener implements ButtonHandler {
 
     public Mono<Void> handle(ButtonInteractionEvent event) {
         log.info("{} handle called", this.getClass().getSimpleName());
+        log.info("Button clicked with customId: {}", event.getCustomId());
 
-        String[] split = event.getCustomId().split(",");
+        ButtonData buttonData;
+        try {
+            buttonData = jsonMapper.readValue(event.getCustomId(), ButtonData.class);
+        } catch (JsonProcessingException e) {
+            log.error("There was an error mapping to buttonData");
+            e.printStackTrace();
+            return event.reply("There was an error processing this request.").withEphemeral(true);
+        }
+        WeatherData data = getWeatherData(buttonData.getCacheId());
 
-        String snowflake = split[0];
-        String location = split[1];
-        String unit = split[2];
-        String cacheKey = snowflake + "," + location + "," + unit; // TODO: fix this
-
-        WeatherData data = getWeatherData(cacheKey);
         if (data == null) {
-            log.info("Cache evicted. Disabling buttons");
+            log.info("Not found in cache. Disabling buttons");
             return event.edit("`Stale weather data. Submit a new command or click refresh`")
                     .withComponents(embedResponseService.disableEmbedComponents(event));
         }
+
         return event.edit()
-                .withEmbeds(embedResponseService.createThreeDay(data, unit))
+                .withEmbeds(embedResponseService.createThreeDay(data, data.getUnit()))
                 .withComponents(embedResponseService.updateEmbedComponents(event));
     }
 
     public WeatherData getWeatherData(String key) {
+        log.info("Searching cache on the cache key {}", key);
         Cache cache = cacheManager.getCache(OPENWEATHER_CACHE);
         if (cache != null) {
             ValueWrapper valueWrapper = cache.get(key);
@@ -54,6 +65,7 @@ public class ThreeDayForecastListener implements ButtonHandler {
                 log.info("exists in cache");
                 return (WeatherData) valueWrapper.get();
             }
+            log.warn("Searched cache and didnt find it");
         }
         return null;
     }

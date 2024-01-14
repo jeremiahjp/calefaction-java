@@ -1,6 +1,5 @@
 package com.jp.calefaction.service;
 
-import com.google.maps.model.GeocodingResult;
 import com.jp.calefaction.model.weather.WeatherData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,14 +21,13 @@ public class WeatherService {
         this.webClient = webClient;
     }
 
-    @Cacheable(value = "openweather_cache", key = "#cacheKey")
-    public WeatherData getOpenWeatherFromCoordinates(GeocodingResult[] result, String unit, String cacheKey) {
-        log.info("Cache miss for location {} in openweather_cache", cacheKey);
-
-        double lat = result[0].geometry.location.lat;
-        double lng = result[0].geometry.location.lng;
-        String address = result[0].formattedAddress;
-
+    /**
+     * This does not use a cache and will always fetch a new WeatherData
+     * @param locationData
+     * @param unit
+     * @return
+     */
+    public WeatherData getOpenWeatherFromCoordinates(double lat, double lng, String unit) {
         log.info("Fetching weather from openweatherapi");
         WeatherData model = webClient
                 .get()
@@ -44,11 +42,16 @@ public class WeatherService {
                 .bodyToMono(WeatherData.class)
                 .block();
 
-        model.setAddress(address);
+        model.setAddress(model.getAddress());
         model.setIndex(0);
         model.setUnit(unit);
+        return model;
+    }
 
-        return updateCache(cacheKey, model);
+    @Cacheable(value = "openweather_cache", key = "#cacheKey")
+    public WeatherData getOpenWeatherFromCoordinates(double lat, double lng, String unit, String cacheKey) {
+        log.info("Cache miss for location {} in openweather_cache", cacheKey);
+        return updateCache(cacheKey, getOpenWeatherFromCoordinates(lat, lng, unit));
     }
 
     @CachePut(value = "openweather_cache", key = "#cacheKey")

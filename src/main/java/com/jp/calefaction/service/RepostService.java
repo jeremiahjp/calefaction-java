@@ -59,6 +59,13 @@ public class RepostService {
             return matcher.group(1);
         }
 
+        // 5. Extract from YouTube short links
+        pattern = Pattern.compile("youtube\\.com/shorts/([a-zA-Z0-9_-]{11})");
+        matcher = pattern.matcher(url);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+
         return null; // Return null if no match is found
     }
 }

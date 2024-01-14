@@ -72,14 +72,11 @@ public class MessageListener {
         }
 
         event.getMessage().getUserData();
-        log.info(message.getContent());
-        log.info(keywords.get(0));
+        log.debug(message.getContent());
+        log.debug(keywords.get(0));
         String s = parseString(message.getContent());
         String s1 = extractUrl(message.getContent());
         // if (keywords.contains(message.getContent())) {
-
-        String[] tokens = message.getContent().split(" ");
-
         String key = repostService.extractVideoId(s1);
 
         if (key != null) {
@@ -95,7 +92,6 @@ public class MessageListener {
             OriginalMessages originalMessages = repostService.getByIdAndGuild(
                     key, message.getGuildId().get().asString());
             if (originalMessages == null) {
-                // /** this code is good
                 log.info("contained a keyword\nLogging it..");
                 // String s = parseString(message.getContent());
                 OriginalMessages data = new OriginalMessages();
@@ -113,7 +109,6 @@ public class MessageListener {
             } else {
                 log.info("REPOSTER!\nThis was posted by: @{} ", u.get().getSnowflakeId());
                 // if (event.getMember().get().getId().asString().equals("94220323628523520")) {
-                log.info("it you");
                 event.getMessage()
                         .getChannel()
                         .block()
@@ -122,7 +117,7 @@ public class MessageListener {
                 // }
             }
 
-            // */
+            // TODO: store to database for tracking of reposts
             // this is where logic for saving to database will exist
         }
 
