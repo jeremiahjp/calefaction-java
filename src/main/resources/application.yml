@@ -1,14 +1,14 @@
 spring:
   profiles:
     active: ${RUNTIME_ENV:dev}
-  datasource:
-    url: jdbc:postgresql://${database_url}:5431/discord
+  r2dbc:
+    url: r2dbc:postgresql://${database_url}:5431/discord
     username: ${db_user}
     password: ${db_pass}
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    r2dbc:
+      repositories:
+        enabled: true
 
 logging:
     level:

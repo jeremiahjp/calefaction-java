@@ -1,6 +1,6 @@
 package com.jp.calefaction.listeners;
 
-import com.jp.calefaction.service.DiscordReply;
+import com.jp.calefaction.service.MessageTranslateService;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import java.util.regex.Matcher;
@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 @Component
 @Slf4j
-public class UrlReplyService implements DiscordReply {
+public class TwitterMessageTranslateService implements MessageTranslateService {
 
     public Mono<Void> processAndReply(MessageCreateEvent event, String url) {
         log.info(url);

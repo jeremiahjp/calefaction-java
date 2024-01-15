@@ -1,13 +1,18 @@
 package com.jp.calefaction.service;
 
+import com.jp.calefaction.model.chart.TempChartData;
 import com.jp.calefaction.model.weather.UnitSystem;
 import com.jp.calefaction.model.weather.WeatherData;
+import com.jp.calefaction.model.weather.WeatherData.Hourly;
+import com.jp.calefaction.service.charting.JFreeChartService;
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.component.LayoutComponent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
+import java.io.File;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -16,17 +21,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jfree.chart.ChartUtils;
+import org.jfree.chart.JFreeChart;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class WeatherEmbedResponseService {
 
     //     private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("EEEE M/d/yyyy");
     private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("hh:mm a z");
     private static final DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("EEEE M/d/yyyy");
+
+    private final JFreeChartService jFreeChartService;
+
+    private final UploadImageService uploadImageService;
 
     @CachePut(value = "openweather_cache", key = "#cacheKey")
     public WeatherData updateCache(String cacheKey, WeatherData cachedObject) {
@@ -47,7 +60,6 @@ public class WeatherEmbedResponseService {
                 + ","
                 + model.getLon()
                 + ",13z)";
-
         return EmbedCreateSpec.builder()
                 .color(Color.BLUE)
                 .title((ZonedDateTime.ofInstant(
@@ -202,6 +214,77 @@ public class WeatherEmbedResponseService {
                         false)
                 .thumbnail("http://openweathermap.org/img/w/"
                         + model.getHourly().get(index).getWeather().get(0).getIcon()
+                        + ".png")
+                .footer("Google Geo API & OpenWeather API", "")
+                .build();
+    }
+
+    public EmbedCreateSpec createEmbedHourlyGraph(WeatherData model) {
+        List<TempChartData> dataList = new ArrayList<>();
+        for (Hourly hourly : model.getHourly()) {
+            long dt = hourly.getDt();
+            double temp = hourly.getTemp();
+            TempChartData tempChartData = new TempChartData();
+            tempChartData.setDt(dt);
+            tempChartData.setTemp(temp);
+            dataList.add(tempChartData);
+        }
+        log.info("dataList {}", dataList);
+        JFreeChart chart = jFreeChartService.createTemperatureChart(
+                dataList,
+                model.getTimezone(),
+                UnitSystem.fromString(model.getUnit()).getTemperatureUnit());
+        String imageUrl = "";
+        try {
+            log.info("attempting to save as png to /opt/myapp/charts");
+            ChartUtils.saveChartAsPNG(new File("/opt/myapp/charts/chart.png"), chart, 1440, 768);
+
+            imageUrl = uploadImageService
+                    .uploadImage("/opt/myapp/charts/chart.png")
+                    .block();
+
+        } catch (IOException e) {
+            log.error("Failed to write image");
+            log.error(e.getMessage());
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        // String degreesUnit = UnitSystem.valueOf(unit.toUpperCase()).getTemperatureUnit();
+        ZoneId zoneId = ZoneId.of(model.getTimezone());
+        // int index = model.getIndex();
+        String descUrl = "[Weather in "
+                + model.getAddress()
+                + "]"
+                + "(https://www.google.com/maps/@"
+                + model.getLat()
+                + ","
+                + model.getLon()
+                + ",13z)";
+        Random rand = new Random();
+
+        return EmbedCreateSpec.builder()
+                // .color(Color.of(rand.nextFloat(), rand.nextFloat(), rand.nextFloat()))
+                // .title((ZonedDateTime.ofInstant(
+                // Instant.ofEpochSecond(model.getCurrent().getDt()), zoneId))
+                // .format(format))
+                .color(Color.of(rand.nextFloat(), rand.nextFloat(), rand.nextFloat()))
+                .title((ZonedDateTime.ofInstant(
+                                Instant.ofEpochSecond(model.getCurrent().getDt()), zoneId)
+                        .format(format)))
+                .description(descUrl)
+                .image(imageUrl)
+                // .addField("Summary", model.getCurrent().getWeather().get(0).getDescription(), false)
+                // .addField("Temperature", Math.round(model.getCurrent().getTemp()) + degreesUnit, true)
+                // .addField("Feel", Math.round(model.getCurrent().getFeels_like()) + degreesUnit, true)
+                // .addField("Cloudiness", Math.round(model.getCurrent().getClouds()) + "%", true)
+                // .addField("UV Index", Math.round(model.getCurrent().getUvi()) + " of 11", true)
+                // .addField("Humidity", model.getCurrent().getHumidity() + "%", true)
+                .thumbnail("http://openweathermap.org/img/w/"
+                        + model.getCurrent().getWeather().get(0).getIcon()
                         + ".png")
                 .footer("Google Geo API & OpenWeather API", "")
                 .build();

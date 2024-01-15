@@ -1,19 +1,21 @@
 package com.jp.calefaction.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
 import java.time.Instant;
+import java.util.UUID;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
 @Data
-@IdClass(OriginalMessagesKey.class)
+@Table(name = "original_messages", schema = "repost")
 public class OriginalMessages {
+
+    @Id
+    private UUID id;
+
     private String snowflakeId;
     private String originalUrl;
 
-    @Id
     private String guildId;
 
     private String messageId;
@@ -21,7 +23,6 @@ public class OriginalMessages {
     private Instant createdOn;
     private String capturedUrl;
 
-    @Id
     private String urlKey;
 
     private String urlDomain;

@@ -4,21 +4,35 @@
     "options": [
         {
             "name": "top",
-            "description": "top reposts",
-            "type": 3,
-            "required": false,
-            "choices": [
+            "description": "View top reposts",
+            "type": 1,
+            "options": [
                 {
-                    "name": "YouTube",
-                    "value": "YT"
+                    "name": "category",
+                    "description": "Select a category",
+                    "type": 3,
+                    "required": false,
+                    "choices": [
+                        {
+                            "name": "YouTube",
+                            "value": "YT"
+                        }
+                    ]
                 }
             ]
         },
         {
             "name": "check",
-            "description": "check if posted", 
-            "type": 3, 
-            "required": false
+            "description": "Check if a URL has been reposted",
+            "type": 1, 
+            "options": [
+                {
+                    "name": "url",
+                    "description": "The URL to check",
+                    "type": 3,
+                    "required": true 
+                }
+            ]
         }
     ]
 }

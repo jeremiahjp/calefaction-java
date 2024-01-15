@@ -13,4 +13,13 @@ public enum UnitSystem {
     private final String name;
     private final String temperatureUnit;
     private final String speedUnit;
+
+    public static UnitSystem fromString(String text) {
+        for (UnitSystem unit : UnitSystem.values()) {
+            if (unit.name.equalsIgnoreCase(text)) {
+                return unit;
+            }
+        }
+        throw new IllegalArgumentException("No constant with text " + text + " found");
+    }
 }

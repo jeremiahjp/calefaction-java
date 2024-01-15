@@ -1,12 +1,12 @@
 package com.jp.calefaction.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import java.time.Instant;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
 @Data
+@Table(name = "users", schema = "repost")
 public class Users {
     @Id
     private String snowflakeId;

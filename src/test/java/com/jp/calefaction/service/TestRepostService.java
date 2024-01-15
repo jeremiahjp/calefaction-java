@@ -21,7 +21,7 @@ public class TestRepostService {
         RepostService repostService = new RepostService(usersRepository, originalMessagesRepository);
         String testUrl = "https://www.youtube.com/watch?v=GA3-AhAMS8U";
         String expected = "GA3-AhAMS8U";
-        String actual = repostService.extractVideoId(testUrl);
+        String actual = repostService.extractVideoIdSync(testUrl);
         assertEquals(expected, actual);
     }
 
@@ -31,7 +31,7 @@ public class TestRepostService {
         String testUrl = "https://m.youtube.com/v/GA3-AhAMS8U";
 
         String expected = "GA3-AhAMS8U";
-        String actual = repostService.extractVideoId(testUrl);
+        String actual = repostService.extractVideoIdSync(testUrl);
         assertEquals(expected, actual);
     }
 
@@ -41,7 +41,7 @@ public class TestRepostService {
         String testUrl = "https://youtube.com/v/GA3-AhAMS8U?version=3&autohide=1";
 
         String expected = "GA3-AhAMS8U";
-        String actual = repostService.extractVideoId(testUrl);
+        String actual = repostService.extractVideoIdSync(testUrl);
         assertEquals(expected, actual);
     }
 
@@ -51,7 +51,7 @@ public class TestRepostService {
         String testUrl = "https://www.youtube.com/embed/GA3-AhAMS8U";
 
         String expected = "GA3-AhAMS8U";
-        String actual = repostService.extractVideoId(testUrl);
+        String actual = repostService.extractVideoIdSync(testUrl);
         assertEquals(expected, actual);
     }
 
@@ -62,7 +62,7 @@ public class TestRepostService {
         String testUrl = "https://www.youtube.com/watch?feature=player_embedded&v=GA3-AhAMS8U";
 
         String expected = "GA3-AhAMS8U";
-        String actual = repostService.extractVideoId(testUrl);
+        String actual = repostService.extractVideoIdSync(testUrl);
         assertEquals(expected, actual);
     }
 
@@ -72,7 +72,7 @@ public class TestRepostService {
         String testUrl = "https://youtu.be/GA3-AhAMS8U";
 
         String expected = "GA3-AhAMS8U";
-        String actual = repostService.extractVideoId(testUrl);
+        String actual = repostService.extractVideoIdSync(testUrl);
         assertEquals(expected, actual);
     }
 
@@ -82,7 +82,7 @@ public class TestRepostService {
         String testUrl = "check this out https://youtu.be/GA3-AhAMS8U";
 
         String expected = "GA3-AhAMS8U";
-        String actual = repostService.extractVideoId(testUrl);
+        String actual = repostService.extractVideoIdSync(testUrl);
         assertEquals(expected, actual);
     }
 
@@ -92,7 +92,7 @@ public class TestRepostService {
         String testUrl = "https://youtu.be/GA3-AhAMS8U check this out ";
 
         String expected = "GA3-AhAMS8U";
-        String actual = repostService.extractVideoId(testUrl);
+        String actual = repostService.extractVideoIdSync(testUrl);
         assertEquals(expected, actual);
     }
 
@@ -102,7 +102,7 @@ public class TestRepostService {
         String testUrl = "this is an accident i v/ery didnt mean to https://youtu.be/GA3-AhAMS8U";
 
         String expected = "GA3-AhAMS8U";
-        String actual = repostService.extractVideoId(testUrl);
+        String actual = repostService.extractVideoIdSync(testUrl);
         assertEquals(expected, actual);
     }
 
@@ -112,7 +112,7 @@ public class TestRepostService {
         String testUrl = "https://youtube.com/shorts/GA3-AhAMS8U check this out ";
 
         String expected = "GA3-AhAMS8U";
-        String actual = repostService.extractVideoId(testUrl);
+        String actual = repostService.extractVideoIdSync(testUrl);
         assertEquals(expected, actual);
     }
 }

@@ -6,7 +6,6 @@ import com.jp.calefaction.listeners.buttons.ButtonHandler;
 import com.jp.calefaction.model.weather.ButtonData;
 import com.jp.calefaction.model.weather.WeatherData;
 import com.jp.calefaction.service.WeatherEmbedResponseService;
-import com.jp.calefaction.service.charting.JFreeChartService;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,16 +15,15 @@ import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+@Component("Hourly")
 @Slf4j
-@Component("5-day")
 @AllArgsConstructor
-public class FiveDayForecastListener implements ButtonHandler {
+public class HourlyListener implements ButtonHandler {
 
     private final WeatherEmbedResponseService embedResponseService;
     private final CacheManager cacheManager;
     private static final String OPENWEATHER_CACHE = "openweather_cache";
     private final ObjectMapper jsonMapper;
-    private final JFreeChartService jFreeChartService;
 
     public String getCustomId(ButtonInteractionEvent event) {
         throw new UnsupportedOperationException("Unimplemented method 'getCustomId'");
@@ -52,7 +50,7 @@ public class FiveDayForecastListener implements ButtonHandler {
         }
 
         return event.edit()
-                .withEmbeds(embedResponseService.createFiveDayEmbed(data, data.getUnit()))
+                .withEmbeds(embedResponseService.createEmbedHourlyGraph(data))
                 .withComponents(embedResponseService.updateEmbedComponents(event));
     }
 

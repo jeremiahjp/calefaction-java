@@ -109,14 +109,13 @@ public class WeatherCommand implements SlashCommand {
             buttonJson = jsonMapper.writeValueAsString(buttonData);
             Button alerts = Button.danger(buttonJson, "Alerts");
 
-            buttonData.setType("Refresh");
+            buttonData.setType("Hourly");
             buttonJson = jsonMapper.writeValueAsString(buttonData);
-            Button refresh = Button.primary(buttonJson, "Refresh");
+            Button hourly = Button.primary(buttonJson, "Hourly");
 
             return event.reply()
                     .withEmbeds(embedResponseService.createOverviewEmbed(weatherData, unit))
-                    .withComponents(
-                            ActionRow.of(overview, threeDay, fiveDay), ActionRow.of(astronomy, alerts, refresh));
+                    .withComponents(ActionRow.of(overview, threeDay, fiveDay), ActionRow.of(astronomy, alerts, hourly));
         } catch (JsonProcessingException e) {
             log.error("Failed mapping the button json. Button map: {}", buttonData);
             return event.reply("There was some error. It's been logged.").withEphemeral(true);
