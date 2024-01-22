@@ -21,3 +21,8 @@ dogapi:
   baseUrl: "https://api.thedogapi.com/v1/images/search"
 ercot:
     baseUrl: "https://www.ercot.com/api/1/services/read/dashboards/"
+
+bot:
+  command:
+    twitter:
+      disabled: true

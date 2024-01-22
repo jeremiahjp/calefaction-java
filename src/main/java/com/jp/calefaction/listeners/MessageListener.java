@@ -24,9 +24,6 @@ public class MessageListener {
     }
 
     public Mono<Void> handle(MessageCreateEvent event) {
-        if (event.getMessage().getAuthor().get().getId().asLong() != 94220323628523520L) {
-            return Mono.empty();
-        }
         if (event.getMessage().getAuthor().map(User::isBot).orElse(true)) {
             log.info("Message is from a bot, ignoring.");
             return Mono.empty();
@@ -43,7 +40,7 @@ public class MessageListener {
             if (messageContent.contains("youtube.com/watch?v") || messageContent.contains("youtu.be/")) {
                 return youTubeRepostService.handle(event);
             }
-            log.info("This message has no action to take");
+            log.info("This message has no action to take.\nThe message was: {}", messageContent);
             return Mono.empty();
         }
     }

@@ -6,6 +6,7 @@ import discord4j.core.object.entity.Message;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -13,7 +14,14 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class TwitterMessageTranslateService implements MessageTranslateService {
 
+    @Value("${bot.command.twitter.disabled}")
+    private boolean commandDisabled;
+
     public Mono<Void> processAndReply(MessageCreateEvent event, String url) {
+        if (commandDisabled) {
+            log.info("X/Twitter command is disabled");
+            return Mono.empty();
+        }
         log.info(url);
         if (url.contains("twitter.com")) {
             log.info("twitter.com seen");
