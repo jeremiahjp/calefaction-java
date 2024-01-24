@@ -29,7 +29,7 @@ public class RepostService {
     }
 
     public Mono<OriginalMessages> getByIdAndGuild(String urlKey, String guildId) {
-        log.info("Trying to get from OriginalMessages with urlKey, guildId: {}, {}", urlKey, guildId);
+        log.info("Trying to get from OriginalMessages with urlKey {}, guildId: {}", urlKey, guildId);
         return originalMessagesRepository.findByUrlKeyAndGuildId(urlKey, guildId);
     }
 

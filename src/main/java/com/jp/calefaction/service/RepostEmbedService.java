@@ -12,7 +12,7 @@ public class RepostEmbedService {
 
     public EmbedCreateSpec createRepostEmbed(OriginalMessages originalMessage) {
         return EmbedCreateSpec.builder()
-                .color(Color.BLUE)
+                .color(Color.RED)
                 .title("Reposter!")
                 .description("You naughty reposter")
                 .addField("This was posted by ", "<@" + originalMessage.getSnowflakeId() + ">", false)
@@ -26,10 +26,25 @@ public class RepostEmbedService {
                 .build();
     }
 
+    public EmbedCreateSpec createRepostCheckEmbed(OriginalMessages originalMessage) {
+        return EmbedCreateSpec.builder()
+                .color(Color.RED)
+                .title("Reposted.")
+                .description("This has been reposted. Don't worry, nobody saw because you checked first.")
+                .addField("This was posted by ", "<@" + originalMessage.getSnowflakeId() + ">", false)
+                .addField(
+                        "Link",
+                        "https://discord.com/channels/" + originalMessage.getGuildId() + "/"
+                                + originalMessage.getChannelId() + "/" + originalMessage.getMessageId(),
+                        false)
+                .thumbnail("")
+                .build();
+    }
+
     public EmbedCreateSpec createTopRepostEmbed(List<TopRepostersDTO> topReposters) {
         String formattedReposters = formatTopReposters(topReposters);
         return EmbedCreateSpec.builder()
-                .color(Color.BLUE)
+                .color(Color.RED)
                 .title("Top 5 Reposters")
                 .description("These are the top 5 naughty reposters")
                 .addField("Top Reposters", formattedReposters, false)

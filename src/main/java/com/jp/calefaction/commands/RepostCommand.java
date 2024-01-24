@@ -1,93 +1,72 @@
-// package com.jp.calefaction.commands;
+package com.jp.calefaction.commands;
 
-// import com.jp.calefaction.service.RepostEmbedService;
-// import com.jp.calefaction.service.RepostService;
-// import com.jp.calefaction.service.repost.RepostCountService;
-// import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-// import discord4j.core.object.command.ApplicationCommandInteractionOption;
-// import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
-// import java.util.Optional;
-// import lombok.AllArgsConstructor;
-// import lombok.extern.slf4j.Slf4j;
-// import org.springframework.stereotype.Component;
-// import reactor.core.publisher.Mono;
+import com.jp.calefaction.entity.OriginalMessages;
+import com.jp.calefaction.service.RepostEmbedService;
+import com.jp.calefaction.service.RepostService;
+import com.jp.calefaction.service.repost.RepostCountService;
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.object.command.ApplicationCommandInteractionOption;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-// @Component
-// @AllArgsConstructor
-// @Slf4j
-// public class RepostCommand implements SlashCommand {
+@Component
+@AllArgsConstructor
+@Slf4j
+public class RepostCommand implements SlashCommand {
 
-//     private final RepostService repostService;
-//     private final RepostEmbedService repostEmbedService;
-//     private final RepostCountService repostCountService;
+    private final RepostService repostService;
+    private final RepostEmbedService repostEmbedService;
+    private final RepostCountService repostCountService;
 
-//     @Override
-//     public String getName() {
-//         return "repost";
-//     }
+    @Override
+    public String getName() {
+        return "repost";
+    }
 
-//     public Mono<Void> handle(ChatInputInteractionEvent event) {
-//         String mainCommand = event.getCommandName();
-//         log.info("recived command name: {}", mainCommand);
+    public Mono<Void> handle(ChatInputInteractionEvent event) {
+        String mainCommand = event.getCommandName();
+        log.info("Received command name: {}", mainCommand);
 
-//         Optional<String> subCommand = event.getOption("location")
-//             .flatMap(ApplicationCommandInteractionOption::getValue)
-//             .map(ApplicationCommandInteractionOptionValue::asString);
+        // Convert the options to a Flux and process each option reactively
+        return Flux.fromIterable(event.getOptions())
+                .flatMap(option -> {
+                    if ("check".equals(option.getName())) {
+                        return handleCheckCommand(
+                                        event.getInteraction()
+                                                .getGuildId()
+                                                .get()
+                                                .asString(),
+                                        option)
+                                .flatMap(v -> event.reply()
+                                        .withEmbeds(repostEmbedService.createRepostCheckEmbed(v))
+                                        .withEphemeral(true))
+                                .switchIfEmpty(
+                                        event.reply("You are clear to post. ✅").withEphemeral(true));
+                    } else if ("top".equals(option.getName())) {
+                        log.info("Top command");
+                        return event.reply("This is not implemented yet.")
+                                .withEphemeral(true); // replace with your actual response
+                    } else {
+                        return Mono.empty();
+                    }
+                })
+                .then();
+    }
 
-//         if (subCommand.isPresent()) {
-//             String command = subCommand.get();
+    private Mono<OriginalMessages> handleCheckCommand(String guildId, ApplicationCommandInteractionOption option) {
+        return option.getOptions().stream()
+                .filter(subOption -> subOption.getValue().isPresent())
+                .findFirst() // Select the first valid sub-option
+                .map(subOption -> {
+                    String value = subOption.getValue().get().asString();
+                    String extracted = repostService.extractVideoIdSync(value);
 
-//             if (command.equals("top")) {
-
-//             }
-//         }
-//         // return event.getOptions().stream()
-//         //         .findFirst() // Get the first option, which should be your subcommand
-//         //         .flatMap(subcommand -> {
-//         //             String subcommandName = subcommand.getName();
-//         //             switch (subcommandName) {
-//         //                 case "top":
-//         //                     return Mono.empty();
-//         //                 case "check":
-//         //                     return Mono.empty();
-//         //                 default:
-//         //                     return Mono.empty(); // Or handle unknown subcommand
-//         //             }
-//         //             return Mono.empty()
-//         //         })
-//         //         .orElse(Mono.empty());
-//     }
-
-//     private Mono<Void> handleTopCommand(
-//             ChatInputInteractionEvent event, ApplicationCommandInteractionOption subcommand) {
-//         // Extracting the 'category' option value if present
-//         Optional<String> category = event.getOption("category")
-//                 .flatMap(ApplicationCommandInteractionOption::getValue)
-//                 .map(ApplicationCommandInteractionOptionValue::asString);
-
-//         category.ifPresent(cat -> {
-//             // Handle the 'top' command with the provided category
-//             log.info("Top command called with category: " + cat);
-//         });
-//         return Mono.empty();
-//         // // Reply to the command or perform other actions
-//         // return event.reply("Handling 'top' command"
-//         //         + (category.map(cat -> " with category " + cat).orElse("")));
-//     }
-
-//     private Mono<Void> handleCheckCommand(
-//             ChatInputInteractionEvent event, ApplicationCommandInteractionOption subcommand) {
-//         // Extracting the 'url' option value
-//         String url = event.getOption("url")
-//                 .flatMap(ApplicationCommandInteractionOption::getValue)
-//                 .map(ApplicationCommandInteractionOptionValue::asString)
-//                 .orElseThrow(() -> new IllegalArgumentException("URL is required"));
-
-//         // Handle the 'check' command with the provided URL
-//         log.info("Check command called with URL: " + url);
-
-//         return Mono.empty();
-//         // Reply to the command or perform other actions
-//         return event.reply("Checking URL: " + url);
-//     }
-// }
+                    return repostService.getByIdAndGuild(extracted, guildId);
+                    // .doOnNext(ogMessage -> Mono.just(ogMessage));
+                })
+                .orElse(Mono.empty()); // In case there are no valid sub-options
+    }
+}
