@@ -1,0 +1,12 @@
+{
+    "name": "urbandictionary",
+    "description": "Search urban dictionary for a word",
+    "options": [
+        {
+            "name": "word",
+            "description": "Word",
+            "type": 3,
+            "required": true
+        }
+    ]
+}

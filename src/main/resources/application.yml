@@ -20,7 +20,9 @@ catapi:
 dogapi:
   baseUrl: "https://api.thedogapi.com/v1/images/search"
 ercot:
-    baseUrl: "https://www.ercot.com/api/1/services/read/dashboards/"
+  baseUrl: "https://www.ercot.com/api/1/services/read/dashboards/"
+urban_dictionary:
+  baseUrl: "https://api.urbandictionary.com/v0"
 
 bot:
   command:

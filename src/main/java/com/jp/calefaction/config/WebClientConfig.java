@@ -21,6 +21,9 @@ public class WebClientConfig {
     @Value("${ercot.baseUrl}")
     private String ercotFuelMix;
 
+    @Value("${urban_dictionary.baseUrl}")
+    private String urbanBaseUrl;
+
     @Bean
     @Qualifier("OpenWeather")
     WebClient createWebClientForOpenWeather() {
@@ -43,5 +46,11 @@ public class WebClientConfig {
     @Qualifier("ercot")
     WebClient createErcotWebClient() {
         return WebClient.create(catApiBaseUrl);
+    }
+
+    @Bean
+    @Qualifier("urban")
+    WebClient createUrbanDictWebClient() {
+        return WebClient.create(urbanBaseUrl);
     }
 }
