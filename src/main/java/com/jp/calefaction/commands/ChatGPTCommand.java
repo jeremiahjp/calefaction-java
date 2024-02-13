@@ -3,6 +3,7 @@ package com.jp.calefaction.commands;
 import com.jp.calefaction.components.APICostCalculator;
 import com.jp.calefaction.model.ai.ChatCompletionRequest;
 import com.jp.calefaction.model.ai.ChatCompletionRequest.Message;
+import com.jp.calefaction.model.ai.ChatCompletionResponse.Choice;
 import com.jp.calefaction.service.ai.ChatGPTEmbesResponseService;
 import com.jp.calefaction.service.ai.ChatGPTService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -34,6 +35,10 @@ public class ChatGPTCommand implements SlashCommand {
         Optional<String> queryOpt = event.getOption("query")
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString);
+        Optional<Boolean> privateOpt = event.getOption("private")
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asBoolean);
+
         log.info("inside the chatGPT handle query");
         if (queryOpt.isEmpty()) {
             return event.reply("You need to provide a query.").withEphemeral(true);
@@ -45,19 +50,17 @@ public class ChatGPTCommand implements SlashCommand {
         message.setContent(query);
         message.setRole("assistant");
         ChatCompletionRequest request = new ChatCompletionRequest("gpt-4", List.of(message));
-
         // Immediately reply with "Processing..."
         return event.reply("Processing...")
+                .withEphemeral(privateOpt.orElse(false))
                 .then(event.getInteractionResponse().getInitialResponse())
                 .flatMap(originalResponse -> {
                     return chatGPTService.getChatCompletion(request).flatMap(response -> {
                         String cost = APICostCalculator.getFormattedCost(response);
-                        String stringReply =
-                                response.getChoices().get(0).getMessage().getContent();
+                        Choice firstChoice = response.getChoices().get(0);
                         log.info("Updating message");
                         return event.editReply("Processed.")
-                                .withEmbeds(embedResponseService.createChatGPTEmbed(
-                                        query, response.getChoices().get(0), cost));
+                                .withEmbeds(embedResponseService.createChatGPTEmbed(query, firstChoice, cost));
                     });
                 })
                 .then();

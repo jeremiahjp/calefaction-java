@@ -7,6 +7,12 @@
             "description": "query",
             "type": 3,
             "required": true
+        },
+        {
+            "name": "private",
+            "description": "only respond to you",
+            "type": 5,
+            "required": false
         }
     ]
 }
