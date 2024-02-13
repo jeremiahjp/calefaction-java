@@ -1,5 +1,6 @@
 package com.jp.calefaction.model.ai;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +14,8 @@ public class ChatCompletionRequest {
     private String model = "gpt-4";
     private List<Message> messages;
     // private Double temperature;
-    // private Integer maxTokens;
+    @JsonProperty("max_tokens")
+    private Integer maxTokens = 300;
     // private Integer topP;
     // private Integer frequencyPenalty;
     // private Integer presencePenalty;

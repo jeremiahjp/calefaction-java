@@ -56,7 +56,8 @@ public class ChatGPTCommand implements SlashCommand {
                                 response.getChoices().get(0).getMessage().getContent();
                         log.info("Updating message");
                         return event.editReply("Processed.")
-                                .withEmbeds(embedResponseService.createChatGPTEmbed(query, stringReply, cost));
+                                .withEmbeds(embedResponseService.createChatGPTEmbed(
+                                        query, response.getChoices().get(0), cost));
                     });
                 })
                 .then();

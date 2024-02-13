@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calefaction
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calefaction
+  template:
+    metadata:
+      labels:
+        app: calefaction
+    spec:
+      containers:
+      - name: calefaction
+        image: calefaction:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        envFrom:
+        - configMapRef:
+            name: prod-config
+        env:
+          - name: DiscordToken
+            valueFrom:
+              secretKeyRef:
+                name: api-keys
+                key: DiscordToken
+          - name: OpenWeatherAPI
+            valueFrom:
+              secretKeyRef:
+                name: api-keys
+                key: OpenWeatherAPI
+          - name: GeocodingAPI
+            valueFrom:
+              secretKeyRef:
+                name: api-keys
+                key: GeocodingAPI
+          - name: Catapi
+            valueFrom:
+              secretKeyRef:
+                name: api-keys
+                key: Catapi
+          - name: Dogapi
+            valueFrom:
+              secretKeyRef:
+                name: api-keys
+                key: Dogapi
+          - name: SolarEdgeKey
+            valueFrom:
+              secretKeyRef:
+                name: api-keys
+                key: SolarEdgeKey
+          - name: imgur_client_id
+            valueFrom:
+              secretKeyRef:
+                name: api-keys
+                key: imgur_client_id
+          - name: imgur_client_secret
+            valueFrom:
+              secretKeyRef:
+                name: api-keys
+                key: imgur_client_secret
+          - name: openAIKey
+            valueFrom:
+              secretKeyRef:
+                name: api-keys
+                key: openAIKey
+          - name: chatGPTApiKey
+            valueFrom:
+              secretKeyRef:
+                name: api-keys
+                key: chatGPTApiKey
+          - name: db_user
+            valueFrom:
+              secretKeyRef:
+                name: api-keys
+                key: db_user
+          - name: db_pass
+            valueFrom:
+              secretKeyRef:
+                name: api-keys
+                key: db_pass
