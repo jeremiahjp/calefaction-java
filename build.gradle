@@ -26,6 +26,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'org.postgresql:r2dbc-postgresql:1.0.4.RELEASE'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 
     implementation 'org.json:json:20231013'
     implementation 'org.jfree:jfreechart:1.5.4'

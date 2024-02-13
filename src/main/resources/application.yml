@@ -23,6 +23,8 @@ ercot:
   baseUrl: "https://www.ercot.com/api/1/services/read/dashboards/"
 urban_dictionary:
   baseUrl: "https://api.urbandictionary.com/v0"
+chatGPT:
+  baseUrl: "https://api.openai.com/v1/"
 
 bot:
   command:

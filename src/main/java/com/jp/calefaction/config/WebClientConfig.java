@@ -24,6 +24,9 @@ public class WebClientConfig {
     @Value("${urban_dictionary.baseUrl}")
     private String urbanBaseUrl;
 
+    @Value("${chatGPT.baseUrl}")
+    private String chatGPTUrl;
+
     @Bean
     @Qualifier("OpenWeather")
     WebClient createWebClientForOpenWeather() {
@@ -52,5 +55,11 @@ public class WebClientConfig {
     @Qualifier("urban")
     WebClient createUrbanDictWebClient() {
         return WebClient.create(urbanBaseUrl);
+    }
+
+    @Bean
+    @Qualifier("chatgpt")
+    WebClient createChatGptWebClient() {
+        return WebClient.create(chatGPTUrl);
     }
 }
