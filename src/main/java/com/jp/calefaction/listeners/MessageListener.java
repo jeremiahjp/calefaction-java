@@ -6,6 +6,7 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.User;
 import java.util.StringJoiner;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -15,6 +16,9 @@ public class MessageListener {
     private final TwitterMessageTranslateService twitterMessageService;
     private final YouTubeRepostService youTubeRepostService;
     private final ChatGptModerationService chatGptModerationService;
+
+    @Value("${chatGPT.moderation.enabled}")
+    private boolean moderationEnabled;
 
     public MessageListener(
             GatewayDiscordClient gateway,
@@ -37,6 +41,9 @@ public class MessageListener {
         } else {
             // Extract the content of the message
             String messageContent = event.getMessage().getContent();
+            if (!moderationEnabled) {
+                return checkForURLsAndAct(event, messageContent);
+            }
 
             return chatGptModerationService.process(messageContent).flatMap(flaggedCategories -> {
                 if (!flaggedCategories.isEmpty()) {
@@ -69,7 +76,9 @@ public class MessageListener {
             log.info("Saw message with twitter.com or x.com");
             return twitterMessageService.processAndReply(event, twitterMessageService.extractUrl(messageContent));
         }
-        if (messageContent.contains("youtube.com/watch?v") || messageContent.contains("youtu.be/")) {
+        if (messageContent.contains("youtube.com/watch?v") // TODO: Fix this dupe issue
+                || messageContent.contains("youtu.be/")
+                || messageContent.contains("youtube.com/shorts/")) {
             return youTubeRepostService.handle(event);
         }
         log.info("This message has no action to take.\nThe message was: {}", messageContent);

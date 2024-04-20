@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: calefaction
-        image: calefaction:v1.0.1
+        image: calefaction:v1.0.5
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -22,6 +22,21 @@ spec:
         - configMapRef:
             name: prod-config
         env:
+          - name: DevId
+            valueFrom:
+              configMapKeyRef:
+                name: prod-env
+                key: DevId
+          - name: database_url
+            valueFrom:
+              configMapKeyRef:
+                name: prod-env
+                key: database_url
+          - name: RUNTIME_ENV
+            valueFrom:
+              configMapKeyRef:
+                name: prod-env
+                key: RUNTIME_ENV
           - name: DiscordToken
             valueFrom:
               secretKeyRef:

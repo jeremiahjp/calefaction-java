@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-@Component
+@Service
 @Slf4j
 @AllArgsConstructor
 public class ChatGptModerationService {

@@ -35,13 +35,14 @@ public class ChatGPTCommand implements SlashCommand {
         Optional<String> queryOpt = event.getOption("query")
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString);
+
         Optional<Boolean> privateOpt = event.getOption("private")
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asBoolean);
 
         log.info("inside the chatGPT handle query");
         if (queryOpt.isEmpty()) {
-            return event.reply("You need to provide a query.").withEphemeral(true);
+            event.reply("You need to provide a query.").withEphemeral(true).then();
         }
 
         final String query = queryOpt.get();

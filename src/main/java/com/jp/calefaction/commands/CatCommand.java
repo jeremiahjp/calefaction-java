@@ -33,15 +33,19 @@ public class CatCommand implements SlashCommand {
         Optional<String> imageType = event.getOption("type")
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString);
-        if (imageType.isPresent()) {
-            log.info("gif was present");
-            List<CatDto> catDto = catImageService.fetchCatImage(imageType.get());
-            return event.reply().withEmbeds(createEmbed(catDto.get(0)));
-        } else {
-            log.info("type not specified");
-            List<CatDto> catDto = catImageService.fetchCatImage("");
-            return event.reply().withEmbeds(createEmbed(catDto.get(0)));
-        }
+
+        imageType.ifPresentOrElse(
+                value -> {
+                    log.info("gif was present");
+                    List<CatDto> catDto = catImageService.fetchCatImage(imageType.get());
+                    event.reply().withEmbeds(createEmbed(catDto.get(0)));
+                },
+                () -> {
+                    log.info("type not specified");
+                    List<CatDto> catDto = catImageService.fetchCatImage("");
+                    event.reply().withEmbeds(createEmbed(catDto.get(0)));
+                });
+        return Mono.empty();
     }
 
     public EmbedCreateSpec createEmbed(CatDto catDto) {

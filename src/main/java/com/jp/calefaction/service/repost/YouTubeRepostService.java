@@ -64,8 +64,10 @@ public class YouTubeRepostService {
         String messageContent = message.getContent();
         // Example of processing for YouTube URLs
         log.info("Checking if it contains youtube");
-        if (messageContent.contains("youtube.com/watch?v") || messageContent.contains("youtu.be/")) {
-            log.info("Message contains youtube or youtub.be. Lets try and process it");
+        if (messageContent.contains("youtube.com/watch?v") // TODO: Fix this
+                || messageContent.contains("youtu.be/")
+                || messageContent.contains("youtube.com/shorts/")) {
+            log.info("Message contains youtube or youtub.be or shorts. Lets try and process it");
             return processYouTubeLink(messageContent, message);
         }
         log.info("Didn't detect youtube at all, ignoring");
@@ -74,7 +76,8 @@ public class YouTubeRepostService {
     }
 
     private Mono<Void> processYouTubeLink(String messageContent, Message message) {
-        String videoId = repostService.extractVideoIdSync(messageContent);
+        log.info("messageContent is {}", messageContent);
+        String videoId = repostService.extractVideoIdSync(messageContent); // need to write this as async
         // no further processing because no videoId
         if (videoId == null) {
             return Mono.empty();
