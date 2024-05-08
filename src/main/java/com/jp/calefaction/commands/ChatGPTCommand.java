@@ -62,6 +62,11 @@ public class ChatGPTCommand implements SlashCommand {
                         log.info("Updating message");
                         return event.editReply("Processed.")
                                 .withEmbeds(embedResponseService.createChatGPTEmbed(query, firstChoice, cost));
+                    })
+                    .onErrorResume(e -> {
+                        // Log the error, provide user feedback, or retry
+                        log.error("Error occurred while processing: ", e);
+                        return event.editReply("An error occurred while processing your request. Please try again later.");
                     });
                 })
                 .then();
