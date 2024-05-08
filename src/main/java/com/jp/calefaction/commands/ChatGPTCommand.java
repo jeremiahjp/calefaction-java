@@ -56,18 +56,21 @@ public class ChatGPTCommand implements SlashCommand {
                 .withEphemeral(privateOpt.orElse(false))
                 .then(event.getInteractionResponse().getInitialResponse())
                 .flatMap(originalResponse -> {
-                    return chatGPTService.getChatCompletion(request).flatMap(response -> {
-                        String cost = APICostCalculator.getFormattedCost(response);
-                        Choice firstChoice = response.getChoices().get(0);
-                        log.info("Updating message");
-                        return event.editReply("Processed.")
-                                .withEmbeds(embedResponseService.createChatGPTEmbed(query, firstChoice, cost));
-                    })
-                    .onErrorResume(e -> {
-                        // Log the error, provide user feedback, or retry
-                        log.error("Error occurred while processing: ", e);
-                        return event.editReply("An error occurred while processing your request. Please try again later.");
-                    });
+                    return chatGPTService
+                            .getChatCompletion(request)
+                            .flatMap(response -> {
+                                String cost = APICostCalculator.getFormattedCost(response);
+                                Choice firstChoice = response.getChoices().get(0);
+                                log.info("Updating message");
+                                return event.editReply("Processed.")
+                                        .withEmbeds(embedResponseService.createChatGPTEmbed(query, firstChoice, cost));
+                            })
+                            .onErrorResume(e -> {
+                                // Log the error, provide user feedback, or retry
+                                log.error("Error occurred while processing: ", e);
+                                return event.editReply(
+                                        "An error occurred while processing your request. Please try again later.");
+                            });
                 })
                 .then();
     }
