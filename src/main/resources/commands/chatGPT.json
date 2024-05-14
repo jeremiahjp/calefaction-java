@@ -1,18 +1,56 @@
 {
     "name": "chatgpt",
-    "description": "query chatgpt",
+    "description": "Query ChatGPT",
     "options": [
         {
-            "name": "query",
-            "description": "query",
-            "type": 3,
-            "required": true
+            "name": "chat",
+            "description": "Chat with ChatGPT",
+            "type": 1,
+            "options": [
+                {
+                    "name": "query",
+                    "description": "Your query",
+                    "type": 3,
+                    "required": true
+                },
+                {
+                    "name": "private",
+                    "description": "Only respond to you",
+                    "type": 5,
+                    "required": false
+                }
+            ]
         },
         {
-            "name": "private",
-            "description": "only respond to you",
-            "type": 5,
-            "required": false
+            "name": "image",
+            "description": "Send an image to ChatGPT",
+            "type": 1,
+            "options": [
+                {
+                    "name": "query",
+                    "description": "Your query about the image",
+                    "type": 3,
+                    "required": true
+                },
+                {
+                    "name": "url",
+                    "description": "URL of the image",
+                    "type": 3,
+                    "required": false
+                },
+                {
+                    "name": "attachment",
+                    "description": "Attach an image",
+                    "type": 11,
+                    "required": false
+                },
+                {
+                    "name": "private",
+                    "description": "Only respond to you",
+                    "type": 5,
+                    "required": false
+                }
+            ]
         }
     ]
 }
