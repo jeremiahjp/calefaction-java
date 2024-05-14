@@ -62,7 +62,7 @@ public class ChatGPTService {
                 .bodyToMono(ModerationResponse.class);
     }
 
-    public Mono<ChatCompletionResponse> getChatCompletionWithImage(String textInput, String base64Image) {
+    public Mono<ChatCompletionResponse> getChatCompletionWithImage(String textInput, String imageUrl) {
         Map<String, String> body = Map.of("input", textInput);
         log.info("Sending the body: {}", body);
 
@@ -73,7 +73,7 @@ public class ChatGPTService {
                 new Object[] {
                     Map.of("role", "user", "content", new Object[] {
                         Map.of("type", "text", "text", textInput),
-                        Map.of("type", "image_url", "image_url", Map.of("url", "data:image/jpeg;base64," + base64Image))
+                        Map.of("type", "image_url", "image_url", Map.of("url", imageUrl))
                     })
                 },
                 "max_tokens",

@@ -29,6 +29,22 @@ public class ChatGPTEmbesResponseService {
                 .build();
     }
 
+    public EmbedCreateSpec embededImageResponse(String query, String imageUrl, Choice choice, String cost) {
+        String message = choice.getMessage().getContent();
+
+        return EmbedCreateSpec.builder()
+                .color(Color.CINNABAR)
+                .title("ChatGPT - Work In Progress")
+                .description("**query response**\n" + "```" + message + "```")
+                .addField("Finish reason", choice.getFinish_reason(), false)
+                .addField("Query", query, false)
+                .addField("Image url", imageUrl, false)
+                .addField("Cost", cost, false)
+                // .addField("Response", message, true)
+                .footer("OpenAI " + gptVersion, "")
+                .build();
+    }
+
     private boolean isStringTooLong(String s) {
         return s.length() > MAX_VALUE_LENGTH - CUTOFF_MESSAGE.length();
     }
