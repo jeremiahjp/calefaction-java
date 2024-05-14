@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: calefaction
+  annotations:
+    redeploy: "1" #annotation to force deploy
 spec:
   replicas: 1
   selector:
@@ -14,7 +16,7 @@ spec:
     spec:
       containers:
       - name: calefaction
-        image: calefaction:v1.0.6
+        image: calefaction:v1.0.8
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80

@@ -11,18 +11,22 @@ import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import java.util.List;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ChatGPTCommand implements SlashCommand {
 
     private final ChatGPTService chatGPTService;
     private final ChatGPTEmbesResponseService embedResponseService;
+
+    @Value("${chatGPT.version}")
+    private String chatGPTVersion;
 
     @Override
     public String getName() {
@@ -50,7 +54,7 @@ public class ChatGPTCommand implements SlashCommand {
         Message message = new Message();
         message.setContent(query);
         message.setRole("assistant");
-        ChatCompletionRequest request = new ChatCompletionRequest("gpt-4", List.of(message));
+        ChatCompletionRequest request = new ChatCompletionRequest(chatGPTVersion, List.of(message));
         // Immediately reply with "Processing..."
         return event.reply("Processing...")
                 .withEphemeral(privateOpt.orElse(false))

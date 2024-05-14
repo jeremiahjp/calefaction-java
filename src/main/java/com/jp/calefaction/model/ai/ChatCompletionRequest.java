@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ChatCompletionRequest {
-    private String model = "gpt-4";
+    private String model;
     private List<Message> messages;
     // private Double temperature;
     @JsonProperty("max_tokens")

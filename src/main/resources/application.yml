@@ -24,6 +24,7 @@ ercot:
 urban_dictionary:
   baseUrl: "https://api.urbandictionary.com/v0"
 chatGPT:
+  version: gpt-4o
   baseUrl: "https://api.openai.com/v1/"
   moderation:
     enabled: false
