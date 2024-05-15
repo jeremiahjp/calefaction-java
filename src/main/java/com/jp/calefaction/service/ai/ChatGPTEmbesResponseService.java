@@ -66,4 +66,11 @@ public class ChatGPTEmbesResponseService {
                 .footer("OpenAI " + gptVersion, "")
                 .build();
     }
+
+    // public EmbedCreateSpec createAudioEmbed() {
+    //     return EmbedCreateSpec.builder()
+    //         .color(Color.PINK)
+    //         .title("audio tts")
+    //         .url("attachment://")
+    // }
 }

@@ -3,6 +3,8 @@ package com.jp.calefaction.service.ai;
 import com.jp.calefaction.model.ai.ChatCompletionRequest;
 import com.jp.calefaction.model.ai.ChatCompletionResponse;
 import com.jp.calefaction.model.ai.ChatSpeechRequest;
+import com.jp.calefaction.model.ai.ImageCreationRequest;
+import com.jp.calefaction.model.ai.ImageCreationResponse;
 import com.jp.calefaction.model.ai.ModerationResponse;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ public class ChatGPTService {
     private static final String COMPLETIONS_URI = "/chat/completions";
     private static final String MODERATIONS_URI = "/moderations";
     private static final String SPEECH_URI = "/audio/speech";
+    private static final String IMAGE_GEN_URI = "/images/generations";
 
     private final String CHAT_GPI_API_KEY = System.getenv("chatGPTApiKey");
 
@@ -39,7 +42,18 @@ public class ChatGPTService {
                 .bodyToMono(ChatCompletionResponse.class);
     }
 
-    public Mono<Resource> createSpeech(ChatSpeechRequest request) {
+    public Mono<ImageCreationResponse> getImageCreation(ImageCreationRequest request) {
+        log.info("Sending the request object {}", request);
+        return webClient
+                .post()
+                .uri(IMAGE_GEN_URI)
+                .header("Authorization", "Bearer " + CHAT_GPI_API_KEY)
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(ImageCreationResponse.class);
+    }
+
+    public Mono<Resource> getSpeech(ChatSpeechRequest request) {
 
         return webClient
                 .post()

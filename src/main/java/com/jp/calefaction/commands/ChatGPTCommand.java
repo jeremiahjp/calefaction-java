@@ -4,6 +4,7 @@ import com.jp.calefaction.components.APICostCalculator;
 import com.jp.calefaction.model.ai.ChatCompletionRequest;
 import com.jp.calefaction.model.ai.ChatCompletionRequest.Message;
 import com.jp.calefaction.model.ai.ChatCompletionResponse.Choice;
+import com.jp.calefaction.model.ai.ImageCreationRequest;
 import com.jp.calefaction.service.ai.ChatGPTEmbesResponseService;
 import com.jp.calefaction.service.ai.ChatGPTService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -47,10 +48,120 @@ public class ChatGPTCommand implements SlashCommand {
             case "image":
                 log.info("Processing image command...");
                 return handleImageSubcommand(subcommand, event);
+            case "generateimage":
+                log.info("Processing generate image command...");
+                return handleImageCreationCommand(subcommand, event);
             default:
                 log.info("Processing unknown...");
                 return event.reply().withEphemeral(true).withContent("Unknown subcommand.");
         }
+    }
+
+    private Mono<Void> handleImageCreationCommand(
+            ApplicationCommandInteractionOption subcommand, ChatInputInteractionEvent event) {
+        Optional<String> queryOpt = subcommand
+                .getOption("query")
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asString);
+
+        Optional<Boolean> privateOpt = subcommand
+                .getOption("private")
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asBoolean);
+
+        Optional<String> sizeOpt = subcommand
+                .getOption("size")
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asString);
+
+        String query = queryOpt.orElse("No query provided.");
+        boolean isPrivateChat = privateOpt.orElse(false);
+        String size = sizeOpt.orElse("1024x1024");
+
+        Message message = new Message();
+        message.setContent(query);
+        message.setRole("assistant");
+        String quality = "hd";
+        String style = "vivid";
+
+        ImageCreationRequest request = new ImageCreationRequest(
+                "dall-e-3",
+                query,
+                1,
+                quality,
+                "url",
+                size,
+                style,
+                event.getInteraction().getUser().getId().asString());
+
+        // Immediately reply with "Processing..."
+        return event.reply("Processing...")
+                .withEphemeral(isPrivateChat)
+                .then(event.getInteractionResponse().getInitialResponse())
+                .flatMap(originalResponse -> {
+                    return chatGPTService
+                            .getImageCreation(request)
+                            .flatMap(response -> {
+                                // String cost = APICostCalculator.getFormattedCost(response);
+                                // Choice firstChoice = response.getChoices().get(0);
+                                log.info("Updating message");
+                                return event.editReply(response.getUrl());
+                                // .withEmbeds(response.getUrl());
+                            })
+                            .onErrorResume(e -> {
+                                log.error("Error occurred while processing: ", e);
+                                return event.editReply(
+                                        "An error occurred while processing your request. Please try again later.");
+                            });
+                })
+                .then();
+    }
+
+    private Mono<Void> handleVoiceSubCommand(
+            ApplicationCommandInteractionOption subcommand, ChatInputInteractionEvent event) {
+        // TODO: Fix implementation
+        return null;
+        // Optional<String> queryOpt = subcommand
+        //         .getOption("query")
+        //         .flatMap(ApplicationCommandInteractionOption::getValue)
+        //         .map(ApplicationCommandInteractionOptionValue::asString);
+
+        // Optional<Boolean> privateOpt = subcommand
+        //         .getOption("private")
+        //         .flatMap(ApplicationCommandInteractionOption::getValue)
+        //         .map(ApplicationCommandInteractionOptionValue::asBoolean);
+
+        // String query = queryOpt.orElse("No query provided.");
+        // boolean isPrivateChat = privateOpt.orElse(false);
+
+        // Message message = new Message();
+        // message.setContent(query);
+        // message.setRole("assistant");
+
+        // ChatSpeechRequest request = new ChatSpeechRequest("tts-1-hd", query, "nova", "opus", 1.0);
+
+        // // Immediately reply with "Processing..."
+        // return event.reply("Processing...")
+        //         .withEphemeral(isPrivateChat)
+        //         .then(event.getInteractionResponse().getInitialResponse())
+        //         .flatMap(originalResponse -> {
+        //             return chatGPTService
+        //                     .getSpeech(request)
+        //                     .flatMap(response -> {
+        //                         String cost = APICostCalculator.getFormattedCost(response);
+        //                         Choice firstChoice = response.getChoices().get(0);
+        //                         log.info("Updating message");
+        //                         return event.editReply("Processed.")
+        //                                 .withEmbeds(embedResponseService.createChatGPTEmbed(query, firstChoice,
+        // cost));
+        //                     })
+        //                     .onErrorResume(e -> {
+        //                         log.error("Error occurred while processing: ", e);
+        //                         return event.editReply(
+        //                                 "An error occurred while processing your request. Please try again later.");
+        //                     });
+        //         })
+        //         .then();
     }
 
     private Mono<Void> handleChatSubcommand(

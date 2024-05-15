@@ -51,6 +51,25 @@
                     "required": false
                 }
             ]
+        },
+        {
+            "name": "generateimage",
+            "description": "Generate an image with dalle",
+            "type": 1,
+            "options": [
+                {
+                    "name": "query",
+                    "description": "Your query about the image",
+                    "type": 3,
+                    "required": true
+                },
+                {
+                    "name": "private",
+                    "description": "Only respond to you",
+                    "type": 5,
+                    "required": false
+                }
+            ]
         }
     ]
 }
