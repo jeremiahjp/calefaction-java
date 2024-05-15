@@ -36,62 +36,16 @@ public class ChatGPTCommand implements SlashCommand {
 
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent event) {
-
-        // Optional<String> queryOpt = event.getOption("query")
-        //         .flatMap(ApplicationCommandInteractionOption::getValue)
-        //         .map(ApplicationCommandInteractionOptionValue::asString);
-
-        // Optional<Boolean> privateOpt = event.getOption("private")
-        //         .flatMap(ApplicationCommandInteractionOption::getValue)
-        //         .map(ApplicationCommandInteractionOptionValue::asBoolean);
-
         log.info("inside the chatGPT handle query");
-        // if (queryOpt.isEmpty()) {
-        //     event.reply("You need to provide a query.").withEphemeral(true).then();
-        // }
 
-        // final String query = queryOpt.get();
-
-        return handleSlashCommand(event);
-
-        // Message message = new Message();
-        // message.setContent(query);
-        // message.setRole("assistant");
-        // ChatCompletionRequest request = new ChatCompletionRequest(chatGPTVersion, List.of(message));
-        // // Immediately reply with "Processing..."
-        // return event.reply("Processing...")
-        //         .withEphemeral(privateOpt.orElse(false))
-        //         .then(event.getInteractionResponse().getInitialResponse())
-        //         .flatMap(originalResponse -> {
-        //             return chatGPTService
-        //                     .getChatCompletion(request)
-        //                     .flatMap(response -> {
-        //                         String cost = APICostCalculator.getFormattedCost(response);
-        //                         Choice firstChoice = response.getChoices().get(0);
-        //                         log.info("Updating message");
-        //                         return event.editReply("Processed.")
-        //                                 .withEmbeds(embedResponseService.createChatGPTEmbed(query, firstChoice,
-        // cost));
-        //                     })
-        //                     .onErrorResume(e -> {
-        //                         // Log the error, provide user feedback, or retry
-        //                         log.error("Error occurred while processing: ", e);
-        //                         return event.editReply(
-        //                                 "An error occurred while processing your request. Please try again later.");
-        //                     });
-        //         })
-        //         .then();
-    }
-
-    private Mono<Void> handleSlashCommand(ChatInputInteractionEvent event) {
         ApplicationCommandInteractionOption subcommand = event.getOptions().get(0);
 
         switch (subcommand.getName()) {
             case "chat":
-                log.info("Processing chat...");
+                log.info("Processing chat command...");
                 return handleChatSubcommand(subcommand, event);
             case "image":
-                log.info("Processing image chat...");
+                log.info("Processing image command...");
                 return handleImageSubcommand(subcommand, event);
             default:
                 log.info("Processing unknown...");
@@ -135,7 +89,6 @@ public class ChatGPTCommand implements SlashCommand {
                                         .withEmbeds(embedResponseService.createChatGPTEmbed(query, firstChoice, cost));
                             })
                             .onErrorResume(e -> {
-                                // Log the error, provide user feedback, or retry
                                 log.error("Error occurred while processing: ", e);
                                 return event.editReply(
                                         "An error occurred while processing your request. Please try again later.");
@@ -199,26 +152,33 @@ public class ChatGPTCommand implements SlashCommand {
             Attachment attachment,
             boolean isPrivate,
             Message message) {
-        ChatCompletionRequest request = new ChatCompletionRequest(chatGPTVersion, List.of(message));
+
+        if (imageUrl.toLowerCase().endsWith("gif")) {
+            return event.reply("Gifs not supported.\n"
+                    + "We currently support PNG (.png), JPEG (.jpeg and .jpg), WEBP (.webp), and non-animated GIF"
+                    + " (.gif).");
+        }
 
         // Immediately reply with "Processing..."
         return event.reply("Processing...")
                 .withEphemeral(isPrivate)
                 .then(event.getInteractionResponse().getInitialResponse())
-                .flatMap(originalResponse -> chatGPTService
-                        .getChatCompletionWithImage(query, imageUrl)
-                        .flatMap(response -> {
-                            String cost = APICostCalculator.getFormattedCost(response);
-                            Choice firstChoice = response.getChoices().get(0);
-                            return event.editReply("Processed.")
-                                    .withEmbeds(embedResponseService.embededImageResponse(
-                                            query, imageUrl, firstChoice, cost));
-                        })
-                        .onErrorResume(e -> {
-                            log.error("Error occurred while processing: ", e);
-                            return event.editReply(
-                                    "An error occurred while processing your request. Please try again later.");
-                        }))
+                .flatMap(originalResponse -> {
+                    return chatGPTService
+                            .getChatCompletionWithImage(query, imageUrl)
+                            .flatMap(response -> {
+                                String cost = APICostCalculator.getFormattedCost(response);
+                                Choice firstChoice = response.getChoices().get(0);
+                                return event.editReply("Processed.")
+                                        .withEmbeds(embedResponseService.embededImageResponse(
+                                                query, imageUrl, firstChoice, cost));
+                            })
+                            .onErrorResume(e -> {
+                                log.error("Error occurred while processing: ", e);
+                                return event.editReply(
+                                        "An error occurred while processing your request. Please try again later.");
+                            });
+                })
                 .then();
     }
 }

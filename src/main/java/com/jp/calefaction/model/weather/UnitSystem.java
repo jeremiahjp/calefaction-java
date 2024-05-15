@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum UnitSystem {
     IMPERIAL("imperial", "°F", "mph"),
     METRIC("metric", "°C", "km/h"),
-    INTERNATIONAL("international", "°C", "m/s");
+    INTERNATIONAL("international", "°K", "m/s");
 
     private final String name;
     private final String temperatureUnit;
