@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: calefaction
   annotations:
-    redeploy: "1" #annotation to force deploy
+    redeploy: "0"
 spec:
   replicas: 1
   selector:
@@ -16,29 +16,14 @@ spec:
     spec:
       containers:
       - name: calefaction
-        image: calefaction:v1.0.8
+        image: calefaction:v1.0.9
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
         envFrom:
         - configMapRef:
-            name: prod-config
+            name: prod-env
         env:
-          - name: DevId
-            valueFrom:
-              configMapKeyRef:
-                name: prod-env
-                key: DevId
-          - name: database_url
-            valueFrom:
-              configMapKeyRef:
-                name: prod-env
-                key: database_url
-          - name: RUNTIME_ENV
-            valueFrom:
-              configMapKeyRef:
-                name: prod-env
-                key: RUNTIME_ENV
           - name: DiscordToken
             valueFrom:
               secretKeyRef:
@@ -69,16 +54,16 @@ spec:
               secretKeyRef:
                 name: api-keys
                 key: SolarEdgeKey
-          - name: imgur_client_id
-            valueFrom:
-              secretKeyRef:
-                name: api-keys
-                key: imgur_client_id
-          - name: imgur_client_secret
-            valueFrom:
-              secretKeyRef:
-                name: api-keys
-                key: imgur_client_secret
+          # - name: imgur_client_id
+          #   valueFrom:
+          #     secretKeyRef:
+          #       name: api-keys
+          #       key: imgur_client_id
+          # - name: imgur_client_secret
+          #   valueFrom:
+          #     secretKeyRef:
+          #       name: api-keys
+          #       key: imgur_client_secret
           - name: openAIKey
             valueFrom:
               secretKeyRef:

@@ -42,3 +42,5 @@ env_vars
 api-keys-secret.yaml
 env_vars_base_64
 prod-env-config.properties
+*.env
+*-env.yaml
