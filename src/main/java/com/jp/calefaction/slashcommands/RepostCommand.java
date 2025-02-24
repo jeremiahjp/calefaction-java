@@ -1,4 +1,4 @@
-package com.jp.calefaction.commands;
+package com.jp.calefaction.slashcommands;
 
 import com.jp.calefaction.entity.OriginalMessages;
 import com.jp.calefaction.service.RepostEmbedService;

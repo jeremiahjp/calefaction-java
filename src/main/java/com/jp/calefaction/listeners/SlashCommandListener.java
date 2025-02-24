@@ -1,6 +1,6 @@
 package com.jp.calefaction.listeners;
 
-import com.jp.calefaction.commands.SlashCommand;
+import com.jp.calefaction.slashcommands.SlashCommand;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import java.util.Collection;

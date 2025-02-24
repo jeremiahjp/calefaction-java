@@ -30,6 +30,25 @@ chatGPT:
     enabled: false
 
 bot:
-  command:
-    twitter:
-      disabled: true
+  listener:
+    link-checkers:
+      reddit:
+        patterns:
+          - "reddit.com"
+        disabled: false
+      instagram:
+        patterns:
+          - "instagram.com"
+        disabled: false
+      twitter:
+        replaced-domain: https://fxtwitter.com
+        patterns:
+          - "twitter.com"
+          - "x.com"
+        disabled: true
+      youtube:
+        patterns:
+          - "youtube.com/watch?v"
+          - "youtu.be/"
+          - "youtube.com/shorts/"
+        disabled: false

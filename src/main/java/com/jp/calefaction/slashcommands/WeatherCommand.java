@@ -1,4 +1,4 @@
-package com.jp.calefaction.commands;
+package com.jp.calefaction.slashcommands;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
