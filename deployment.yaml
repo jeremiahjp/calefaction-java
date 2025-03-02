@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: calefaction
-        image: calefaction:v1.1.2
+        image: calefaction:v1.1.4
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
