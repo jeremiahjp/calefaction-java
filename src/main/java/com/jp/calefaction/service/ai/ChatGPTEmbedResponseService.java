@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ChatGPTEmbesResponseService {
+public class ChatGPTEmbedResponseService {
     private static final int MAX_VALUE_LENGTH = 1025;
     private static final String CUTOFF_MESSAGE = "\n...\nThe rest was trunc because Discord imposes 1024 char limit";
 

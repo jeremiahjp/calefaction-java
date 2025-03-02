@@ -1,5 +1,5 @@
 echo "Building container..."
-docker build -t calefaction:v1.0.9 .
+docker build -t calefaction:v1.1.4 .
 # echo "Stopping all containers ..."
 # docker stop $(docker ps -q)
 # echo "Removing all containers ..."

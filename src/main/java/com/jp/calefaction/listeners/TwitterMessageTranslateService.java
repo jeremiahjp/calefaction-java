@@ -1,24 +1,25 @@
 package com.jp.calefaction.listeners;
 
+import com.jp.calefaction.config.LinkCheckerProperties;
 import com.jp.calefaction.service.MessageTranslateService;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
 @Slf4j
+@AllArgsConstructor
 public class TwitterMessageTranslateService implements MessageTranslateService {
 
-    @Value("${bot.command.twitter.disabled}")
-    private boolean commandDisabled;
+    private final LinkCheckerProperties linkCheckerProperties;
 
     public Mono<Void> processAndReply(MessageCreateEvent event, String url) {
-        if (commandDisabled) {
+        if (linkCheckerProperties.getLinkCheckers().get("twitter").isDisabled()) {
             log.info("X/Twitter command is disabled");
             return Mono.empty();
         }

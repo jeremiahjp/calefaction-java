@@ -1,4 +1,4 @@
-package com.jp.calefaction.commands;
+package com.jp.calefaction.slashcommands;
 
 import com.jp.calefaction.model.dogapi.DogDto;
 import com.jp.calefaction.service.DogImageService;

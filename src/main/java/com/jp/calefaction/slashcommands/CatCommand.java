@@ -1,4 +1,4 @@
-package com.jp.calefaction.commands;
+package com.jp.calefaction.slashcommands;
 
 import com.jp.calefaction.model.catapi.CatDto;
 import com.jp.calefaction.service.CatImageService;

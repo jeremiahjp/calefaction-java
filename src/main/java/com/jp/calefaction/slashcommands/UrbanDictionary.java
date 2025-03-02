@@ -1,4 +1,4 @@
-package com.jp.calefaction.commands;
+package com.jp.calefaction.slashcommands;
 
 import com.jp.calefaction.service.responses.embed.UrbanDictionaryEmbedResponse;
 import com.jp.calefaction.service.urbandictionary.UrbanDictionaryService;
