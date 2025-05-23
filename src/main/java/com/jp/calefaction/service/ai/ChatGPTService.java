@@ -9,6 +9,7 @@ import com.jp.calefaction.model.ai.ModerationResponse;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,10 @@ import reactor.core.publisher.Mono;
 public class ChatGPTService {
 
     private final WebClient webClient;
+
+    @Value("${chatGPT.version}")
+    public String gptVersion;
+
     private static final String COMPLETIONS_URI = "/chat/completions";
     private static final String MODERATIONS_URI = "/moderations";
     private static final String SPEECH_URI = "/audio/speech";
@@ -32,7 +37,7 @@ public class ChatGPTService {
     }
 
     public Mono<ChatCompletionResponse> getChatCompletion(ChatCompletionRequest request) {
-        log.info("Sending the request object {}", request);
+        log.info("Sending the request object {}", request.getModel());
         return webClient
                 .post()
                 .uri(COMPLETIONS_URI)
@@ -82,7 +87,7 @@ public class ChatGPTService {
 
         Map<String, Object> payload = Map.of(
                 "model",
-                "gpt-4o",
+                gptVersion,
                 "messages",
                 new Object[] {
                     Map.of("role", "user", "content", new Object[] {

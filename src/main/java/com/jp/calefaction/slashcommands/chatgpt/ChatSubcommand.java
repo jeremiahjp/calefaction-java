@@ -11,18 +11,25 @@ import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import java.util.List;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
 @Slf4j
-@AllArgsConstructor
 public class ChatSubcommand {
 
     private final ChatGPTService chatGPTService;
     private final ChatGPTEmbedResponseService embedResponseService;
+
+    @Value("${chatGPT.version}")
+    private String gptVersion;
+
+    public ChatSubcommand(ChatGPTService chatGPTService, ChatGPTEmbedResponseService embedResponseService) {
+        this.chatGPTService = chatGPTService;
+        this.embedResponseService = embedResponseService;
+    }
 
     public Mono<Void> handleChatSubcommand(
             ApplicationCommandInteractionOption subcommand, ChatInputInteractionEvent event) {
@@ -43,7 +50,8 @@ public class ChatSubcommand {
         message.setContent(query);
         message.setRole("assistant");
 
-        ChatCompletionRequest request = new ChatCompletionRequest("gpt-4o", List.of(message));
+        ChatCompletionRequest request = new ChatCompletionRequest(gptVersion, List.of(message));
+        request.setSearchMode("on");
 
         // Immediately reply so discord is happy
         return event.deferReply()

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: calefaction
-        image: calefaction:v1.1.4
+        image: calefaction:v1.2.32
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -74,6 +74,11 @@ spec:
               secretKeyRef:
                 name: api-keys
                 key: chatGPTApiKey
+          - name: grokApiKey
+            valueFrom:
+              secretKeyRef:
+                name: api-keys
+                key: grokApiKey
           - name: db_user
             valueFrom:
               secretKeyRef:

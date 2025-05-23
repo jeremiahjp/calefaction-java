@@ -3,12 +3,6 @@ package com.jp.calefaction.listeners;
 import com.jp.calefaction.listeners.buttons.ButtonHandler;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ButtonInteractionEvent;
-import discord4j.core.object.component.ActionRow;
-import discord4j.core.object.component.Button;
-import discord4j.core.object.component.LayoutComponent;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
@@ -27,38 +21,26 @@ public class ButtonEventListener {
 
     @EventListener
     public Mono<Void> handle(ButtonInteractionEvent event) {
-        log.info("inside application context handle");
-        Optional<String> interactedCustomId = getButtonLabel(event);
+        log.info("Button interaction received with custom ID: {}", event.getCustomId());
 
-        ButtonHandler handler =
-                (ButtonHandler) applicationContext.getBean(interactedCustomId.get()); // TODO: check for NPE
+        // Extract the handler name from the custom ID
+        String handlerName = event.getCustomId().split("_")[0];
+        log.info("Looking for handler with name: {}", handlerName);
 
-        if (handler != null) {
-            return handler.handle(event);
-        } else {
-            return handleUnknownButton(event);
+        try {
+            ButtonHandler handler = (ButtonHandler) applicationContext.getBean(handlerName);
+            if (handler != null) {
+                return handler.handle(event);
+            }
+        } catch (Exception e) {
+            log.error("Error finding handler for button: {}", event.getCustomId(), e);
         }
+
+        return handleUnknownButton(event);
     }
 
     private Mono<Void> handleUnknownButton(ButtonInteractionEvent event) {
-        return event.reply("Unknown button clicked!");
-    }
-
-    private Optional<String> getButtonLabel(ButtonInteractionEvent event) {
-        List<LayoutComponent> components = event.getMessage().get().getComponents();
-
-        List<ActionRow> actionRows = components.stream()
-                .filter(component -> component instanceof ActionRow)
-                .map(component -> (ActionRow) component)
-                .collect(Collectors.toList());
-
-        return actionRows.stream()
-                .flatMap(actionRow -> actionRow.getChildren().stream())
-                .filter(item -> item instanceof Button)
-                .map(item -> (Button) item)
-                .filter(button -> button.getCustomId().get().equals(event.getCustomId()))
-                .findFirst()
-                .map(Button::getLabel)
-                .get();
+        log.warn("No handler found for button with custom ID: {}", event.getCustomId());
+        return event.reply("This button is not currently supported.").withEphemeral(true);
     }
 }

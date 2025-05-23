@@ -24,11 +24,13 @@ ercot:
 urban_dictionary:
   baseUrl: "https://api.urbandictionary.com/v0"
 chatGPT:
-  version: gpt-4o
+  version: gpt-4.1
   baseUrl: "https://api.openai.com/v1/"
   moderation:
     enabled: false
-
+grok:
+  model: grok-3-mini-latest
+  baseUrl: "https://api.grok.com/v1/"
 bot:
   listener:
     link-checkers:

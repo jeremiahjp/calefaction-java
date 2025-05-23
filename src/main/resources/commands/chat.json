@@ -1,0 +1,29 @@
+{
+    "name": "chat",
+    "description": "Chat with an LLM",
+    "options": [
+      {
+        "name": "model",
+        "description": "Which LLM to use",
+        "type": 3,
+        "required": true,
+        "choices": [
+          { "name": "GPT-4.1", "value": "gpt-4.1" },
+          { "name": "Grok-3", "value": "grok-3-latest" },
+          { "name": "Sonnet", "value": "sonnet" }
+        ]
+      },
+      {
+        "name": "query",
+        "description": "Your query",
+        "type": 3,
+        "required": true
+      },
+      {
+        "name": "private",
+        "description": "Only respond to you",
+        "type": 5,
+        "required": false
+      }
+    ]
+  }

@@ -62,4 +62,10 @@ public class WebClientConfig {
     WebClient createChatGptWebClient() {
         return WebClient.create(chatGPTUrl);
     }
+
+    @Bean
+    @Qualifier("grokWebClient")
+    WebClient createGrokWebClient() {
+        return WebClient.create("https://api.x.ai");
+    }
 }

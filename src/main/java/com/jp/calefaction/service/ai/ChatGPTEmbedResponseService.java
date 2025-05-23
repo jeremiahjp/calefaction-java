@@ -14,19 +14,21 @@ public class ChatGPTEmbedResponseService {
     @Value("${chatGPT.version}")
     public String gptVersion;
 
-    public EmbedCreateSpec createChatGPTEmbed(String query, Choice choice, String cost) {
-        String message = choice.getMessage().getContent();
-
+    public EmbedCreateSpec createChatGPTEmbed(String query, Choice choice, String cost, String formattedResponse) {
         return EmbedCreateSpec.builder()
                 .color(Color.ORANGE)
                 .title("ChatGPT - Work In Progress")
-                .description("**query response**\n" + "```" + message + "```")
+                .description(formattedResponse)
                 .addField("Finish reason", choice.getFinish_reason(), false)
                 .addField("Query", query, false)
                 .addField("Cost", cost, false)
-                // .addField("Response", message, true)
                 .footer("OpenAI " + gptVersion, "")
                 .build();
+    }
+
+    public EmbedCreateSpec createChatGPTEmbed(String query, Choice choice, String cost) {
+        String message = choice.getMessage().getContent();
+        return createChatGPTEmbed(query, choice, cost, "**query response**\n" + "```" + message + "```");
     }
 
     public EmbedCreateSpec embededImageResponse(String query, String imageUrl, Choice choice, String cost) {
@@ -40,7 +42,6 @@ public class ChatGPTEmbedResponseService {
                 .addField("Query", query, false)
                 .addField("Image url", imageUrl, false)
                 .addField("Cost", cost, false)
-                // .addField("Response", message, true)
                 .footer("OpenAI " + gptVersion, "")
                 .build();
     }
