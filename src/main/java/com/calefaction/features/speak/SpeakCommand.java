@@ -65,8 +65,10 @@ public class SpeakCommand implements SlashCommand {
 
         grokTtsService.generateSpeech(text, voice).subscribe(
                 audioBytes -> {
+                    double cost = text.length() * 0.000015;
+                    String content = String.format("🗣️ Here is your speech!\nCost: $%.5f (%d chars)", cost, text.length());
                     event.getHook().sendFiles(FileUpload.fromData(audioBytes, "speech.mp3"))
-                            .setContent("🗣️ Here is your speech!")
+                            .setContent(content)
                             .queue();
                 },
                 error -> {
