@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calefaction
+  labels:
+    app: calefaction
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calefaction
+  template:
+    metadata:
+      labels:
+        app: calefaction
+    spec:
+      containers:
+        - name: calefaction
+          image: calefaction:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=75.0"
+            - name: DISCORD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: calefaction-secrets
+                  key: DISCORD_TOKEN
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: calefaction-secrets
+                  key: OPENAI_API_KEY
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: calefaction-secrets
+                  key: ANTHROPIC_API_KEY
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: calefaction-secrets
+                  key: GEMINI_API_KEY
+            - name: XAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: calefaction-secrets
+                  key: XAI_API_KEY
+            - name: GOOGLE_GEOCODING_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: calefaction-secrets
+                  key: GOOGLE_GEOCODING_API_KEY
+            - name: OPENWEATHER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: calefaction-secrets
+                  key: OPENWEATHER_API_KEY
+            - name: SOLAREDGE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: calefaction-secrets
+                  key: SOLAREDGE_API_KEY
+            - name: SOLAREDGE_SITE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: calefaction-secrets
+                  key: SOLAREDGE_SITE_ID
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
