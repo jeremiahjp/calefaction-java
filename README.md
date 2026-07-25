@@ -1,11 +1,11 @@
 # Calefaction Discord Bot
 
-A modern Discord bot built with Java 21, Spring Boot, and JDA, designed to run on Kubernetes.
+A modern Discord bot built with Java 25, Spring Boot, and JDA, designed to run on Kubernetes.
 
 ## Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) with **Kubernetes enabled**.
-- Java 21 or higher (for local development).
+- Java 25 (for local development).
 - `kubectl` CLI.
 
 ---
@@ -19,7 +19,7 @@ Build the application locally to ensure it compiles correctly:
 ```
 
 ### 2. Build the Docker Image
-The project includes a multi-stage `Dockerfile` that builds and packages the application:
+The project's `Dockerfile` copies the locally compiled JAR from the previous step. Run this to package it into an image:
 ```bash
 docker build -t calefaction:latest .
 ```
@@ -69,8 +69,9 @@ kubectl logs -l app=calefaction -f
 ## 🔄 Updating the Bot
 
 When you make code changes, you can either run the `deploy.ps1` script again, or manually:
-1. Re-build the Docker image: `docker build -t calefaction:latest .`
-2. Restart the deployment to pick up the new image:
+1. Build the new JAR: `./gradlew build`
+2. Re-build the Docker image: `docker build -t calefaction:latest .`
+3. Restart the deployment to pick up the new image:
 ```bash
 kubectl rollout restart deployment/calefaction
 ```
