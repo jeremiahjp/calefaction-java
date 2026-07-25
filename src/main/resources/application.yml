@@ -1,54 +1,145 @@
 spring:
-  profiles:
-    active: ${RUNTIME_ENV:dev}
-  r2dbc:
-    url: r2dbc:postgresql://${database_url}:5431/discord
-    username: ${db_user}
-    password: ${db_pass}
-  data:
-    r2dbc:
-      repositories:
-        enabled: true
+  application:
+    name: calefaction
+  main:
+    web-application-type: none
 
-logging:
-    level:
-        '[com.jp.calefaction]': INFO
-openweather:
-  baseUrl: "https://api.openweathermap.org/data/3.0/"
-catapi:
-  baseUrl: "https://api.thecatapi.com/v1/images/search"
-dogapi:
-  baseUrl: "https://api.thedogapi.com/v1/images/search"
-ercot:
-  baseUrl: "https://www.ercot.com/api/1/services/read/dashboards/"
-urban_dictionary:
-  baseUrl: "https://api.urbandictionary.com/v0"
-chatGPT:
-  version: gpt-4o
-  baseUrl: "https://api.openai.com/v1/"
-  moderation:
-    enabled: false
+chat:
+  message-chunk-size: 1800  # Discord message limit is 2000, leave room for formatting
 
 bot:
-  listener:
-    link-checkers:
-      reddit:
-        patterns:
-          - "reddit.com"
-        disabled: false
-      instagram:
-        patterns:
-          - "instagram.com"
-        disabled: false
-      twitter:
-        replaced-domain: https://fxtwitter.com
-        patterns:
-          - "twitter.com"
-          - "x.com"
-        disabled: true
-      youtube:
-        patterns:
-          - "youtube.com/watch?v"
-          - "youtu.be/"
-          - "youtube.com/shorts/"
-        disabled: false
+  admin-user-ids:
+    - "94220323628523520"
+
+discord:
+  token: ${DISCORD_TOKEN:}
+  guild-id: ${DISCORD_GUILD_ID:} # Optional: for faster command updates during dev
+
+openai:
+  api-key: ${OPENAI_API_KEY:}
+  base-url: "https://api.openai.com/v1"
+  models:
+    video: sora-2
+
+
+anthropic:
+  api-key: ${ANTHROPIC_API_KEY:}
+
+
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+
+
+xai:
+  api-key: ${XAI_API_KEY:}
+  base-url: "https://api.x.ai/v1"
+  models:
+    image: grok-imagine-image
+    video: grok-imagine-video
+google:
+  geocoding:
+    api-key: ${GOOGLE_GEOCODING_API_KEY:}
+
+openweather:
+  api-key: ${OPENWEATHER_API_KEY:}
+
+solaredge:
+  api-key: ${SOLAREDGE_API_KEY:}
+  site-id: ${SOLAREDGE_SITE_ID:}
+
+
+logging:
+  level:
+    root: INFO
+    com.calefaction: DEBUG
+
+llm:
+  providers:
+    openai:
+      enabled: true
+      models:
+        - name: GPT-5 Omni
+          id: gpt-5-omni
+          inputPricePerMillion: 5.00
+          outputPricePerMillion: 15.00
+        - name: GPT-4o
+          id: gpt-4o
+          inputPricePerMillion: 2.50
+          outputPricePerMillion: 10.00
+        - name: GPT-5 Nano
+          id: gpt-5-nano
+          inputPricePerMillion: 0.25
+          outputPricePerMillion: 2.00
+    claude:
+      enabled: false
+      models:
+        - name: Claude 3.7 Sonnet
+          id: claude-3-7-sonnet-20250219
+          inputPricePerMillion: 3.00
+          outputPricePerMillion: 15.00
+        - name: Claude 3.5 Sonnet
+          id: claude-3-5-sonnet-20241022
+          inputPricePerMillion: 3.00
+          outputPricePerMillion: 15.00
+        - name: Claude 3.5 Haiku
+          id: claude-3-5-haiku-20241022
+          inputPricePerMillion: 0.80
+          outputPricePerMillion: 4.00
+        - name: Claude 3 Opus
+          id: claude-3-opus-20240229
+          inputPricePerMillion: 15.00
+          outputPricePerMillion: 75.00
+    gemini:
+      enabled: false
+      models:
+        - name: Gemini 3.1 Pro
+          id: gemini-3.1-pro
+          inputPricePerMillion: 1.25
+          outputPricePerMillion: 5.00
+        - name: Gemini 3.0 Flash
+          id: gemini-3.0-flash
+          inputPricePerMillion: 0.075
+          outputPricePerMillion: 0.30
+        - name: Gemini Pro
+          id: gemini-pro
+          inputPricePerMillion: 0.50
+          outputPricePerMillion: 1.50
+        - name: Gemini 1.5 Pro
+          id: gemini-1.5-pro
+          inputPricePerMillion: 1.25
+          outputPricePerMillion: 5.00
+        - name: Gemini 1.5 Flash
+          id: gemini-1.5-flash
+          inputPricePerMillion: 0.075
+          outputPricePerMillion: 0.30
+    grok:
+      enabled: true
+      models:
+        - name: Grok 4.5
+          id: grok-4.5
+          inputPricePerMillion: 2.00
+          outputPricePerMillion: 4.00
+        - name: Grok 4.3
+          id: grok-4.3
+          inputPricePerMillion: 1.25
+          outputPricePerMillion: 2.50
+
+link-fixer:
+  enabled: true
+  domains:
+    - pattern: twitter.com
+      replacement: fxtwitter.com
+      enabled: true
+    - pattern: x.com
+      replacement: fxtwitter.com
+      enabled: true
+    - pattern: tiktok.com
+      replacement: vxtiktok.com
+      enabled: true
+    - pattern: instagram.com
+      replacement: eeinstagram.com
+      enabled: true
+    - pattern: reddit.com
+      replacement: rxddit.com
+      enabled: true
+
