@@ -28,6 +28,14 @@ docker build -t calefaction:latest .
 
 ## 🚀 Deploying to Kubernetes (Docker Desktop)
 
+### Option 1: Automated Deployment (Windows)
+If you are on Windows, you can use the included PowerShell script to automatically build the JAR, build the Docker image, apply K8s manifests, and restart the deployment in one go:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\deploy.ps1
+```
+
+### Option 2: Manual Deployment
+
 ### 1. Configure Secrets
 Open `k8s/secrets.yaml` and fill in your API keys (Plaintext is fine as the file uses `stringData`).
 
@@ -60,7 +68,7 @@ kubectl logs -l app=calefaction -f
 
 ## 🔄 Updating the Bot
 
-When you make code changes:
+When you make code changes, you can either run the `deploy.ps1` script again, or manually:
 1. Re-build the Docker image: `docker build -t calefaction:latest .`
 2. Restart the deployment to pick up the new image:
 ```bash
@@ -69,4 +77,7 @@ kubectl rollout restart deployment/calefaction
 
 ## ⚙️ Configuration
 
-Available LLM providers and models are configured in `src/main/resources/application.yml`. You can add or remove models there without changing the code.
+All configuration is managed in `src/main/resources/application.yml`:
+
+- **LLM Providers & Models**: You can add or remove models (OpenAI, Claude, Gemini, Grok) without changing the code.
+- **Admin Access**: To use restricted commands (like video generation or dev-mode games), add your Discord User ID to the `bot.admin-user-ids` list.
