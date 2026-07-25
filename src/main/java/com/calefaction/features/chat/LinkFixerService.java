@@ -1,10 +1,13 @@
 package com.calefaction.features.chat;
 
 import com.calefaction.config.LinkFixerConfig;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.FileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -14,18 +17,15 @@ public class LinkFixerService extends ListenerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(LinkFixerService.class);
     private final LinkFixerConfig config;
+    private final VideoDownloadService videoDownloadService;
 
-    // Matches any http/https URL with at least one dot in the domain
-    // Group 1: protocol (https://)
-    // Group 2: www prefix (optional)
-    // Group 3: domain (e.g. twitter.com)
-    // Group 4: path (/...)
     private static final Pattern URL_PATTERN = Pattern.compile(
             "(https?://)(www\\.)?([a-zA-Z0-9.-]+\\.[a-z]{2,})(/\\S*)",
             Pattern.CASE_INSENSITIVE);
 
-    public LinkFixerService(LinkFixerConfig config) {
+    public LinkFixerService(LinkFixerConfig config, VideoDownloadService videoDownloadService) {
         this.config = config;
+        this.videoDownloadService = videoDownloadService;
     }
 
     @Override
@@ -40,15 +40,16 @@ public class LinkFixerService extends ListenerAdapter {
         Matcher matcher = URL_PATTERN.matcher(content);
 
         if (matcher.find()) {
-            StringBuilder fixedContent = new StringBuilder();
+            List<String> originalUrls = new ArrayList<>();
+            List<String> fixedUrls = new ArrayList<>();
             boolean found = false;
 
             matcher.reset();
             while (matcher.find()) {
+                String fullUrl = matcher.group(0);
                 String domain = matcher.group(3).toLowerCase();
                 String path = matcher.group(4);
 
-                // Find matching config for this domain
                 String replacement = null;
                 for (LinkFixerConfig.DomainConfig dc : config.getDomains()) {
                     if (dc.isEnabled() && domain.equals(dc.getPattern())) {
@@ -58,9 +59,9 @@ public class LinkFixerService extends ListenerAdapter {
                 }
 
                 if (replacement != null) {
-                    // Reconstruct URL: https:// + replacement + path
+                    originalUrls.add(fullUrl);
                     String fixedUrl = "https://" + replacement + path;
-                    fixedContent.append(fixedUrl).append("\n");
+                    fixedUrls.add(fixedUrl);
                     found = true;
                 }
             }
@@ -74,11 +75,33 @@ public class LinkFixerService extends ListenerAdapter {
                     // Ignore
                 }
 
-                event.getMessage().reply(fixedContent.toString().trim())
-                        .setAllowedMentions(java.util.Collections.emptyList())
-                        .queue();
-
-                log.info("Fixed links for user {}: {}", event.getAuthor().getName(), fixedContent);
+                if ("DOWNLOAD".equalsIgnoreCase(config.getMode())) {
+                    for (String url : originalUrls) {
+                        videoDownloadService.downloadVideo(url).thenAccept(file -> {
+                            event.getMessage().replyFiles(FileUpload.fromData(file))
+                                    .setAllowedMentions(java.util.Collections.emptyList())
+                                    .queue(
+                                        success -> file.delete(),
+                                        error -> {
+                                            log.error("Failed to upload downloaded video", error);
+                                            file.delete();
+                                        }
+                                    );
+                        }).exceptionally(ex -> {
+                            log.error("Failed to download video from {}", url, ex);
+                            return null;
+                        });
+                    }
+                } else {
+                    StringBuilder fixedContent = new StringBuilder();
+                    for (String url : fixedUrls) {
+                        fixedContent.append(url).append("\n");
+                    }
+                    event.getMessage().reply(fixedContent.toString().trim())
+                            .setAllowedMentions(java.util.Collections.emptyList())
+                            .queue();
+                    log.info("Fixed links for user {}: {}", event.getAuthor().getName(), fixedContent);
+                }
             }
         }
     }

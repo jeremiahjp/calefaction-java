@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class LinkFixerConfig {
 
     private boolean enabled;
+    private String mode = "REPLACE";
     private List<DomainConfig> domains = new ArrayList<>();
 
     public boolean isEnabled() {
@@ -18,6 +19,14 @@ public class LinkFixerConfig {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 
     public List<DomainConfig> getDomains() {
