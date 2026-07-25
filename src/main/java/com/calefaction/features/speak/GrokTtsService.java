@@ -43,6 +43,12 @@ public class GrokTtsService {
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .retrieve()
+                .onStatus(status -> status.isError(), response ->
+                    response.bodyToMono(String.class).flatMap(errorBody -> {
+                        log.error("[Grok TTS] API Error {}: {}", response.statusCode(), errorBody);
+                        return reactor.core.publisher.Mono.error(new RuntimeException("API Error: " + errorBody));
+                    })
+                )
                 .bodyToMono(byte[].class)
                 .doOnSuccess(bytes -> log.info("[Grok TTS] Received audio response of {} bytes", bytes != null ? bytes.length : 0))
                 .doOnError(e -> log.error("[Grok TTS] Failed to generate speech", e));
