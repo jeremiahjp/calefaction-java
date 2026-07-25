@@ -1,12 +1,12 @@
 # Build Stage
-FROM gradle:8.14.0-jdk25-alpine AS build
-WORKDIR /home/gradle/src
-COPY --chown=gradle:gradle . .
-RUN gradle build --no-daemon -x test
+FROM eclipse-temurin:25-jdk-alpine AS build
+WORKDIR /app
+COPY . .
+RUN ./gradlew build --no-daemon -x test
 
 # Run Stage
 FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 RUN apk add --no-cache libstdc++ gcompat
-COPY --from=build /home/gradle/src/build/libs/*.jar app.jar
+COPY --from=build /app/build/libs/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
