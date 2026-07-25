@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -19,8 +20,13 @@ public class GrokTtsService {
     private String apiKey;
 
     public GrokTtsService(WebClient.Builder webClientBuilder) {
+        ExchangeStrategies strategies = ExchangeStrategies.builder()
+                .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(25 * 1024 * 1024)) // 25MB buffer
+                .build();
+
         this.webClient = webClientBuilder
                 .baseUrl("https://api.x.ai/v1")
+                .exchangeStrategies(strategies)
                 .build();
     }
 
