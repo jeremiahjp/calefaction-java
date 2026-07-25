@@ -46,8 +46,9 @@ public class VideoDownloadService {
                 if (!downloadedFile.exists()) {
                     // Try to find if it saved with a different extension
                     File dir = downloadedFile.getParentFile();
-                    String baseName = downloadedFile.getName().substring(0, downloadedFile.getName().lastIndexOf('.'));
-                    File[] matchingFiles = dir.listFiles((d, name) -> name.startsWith(baseName) && !name.equals(downloadedFile.getName()));
+                    String origName = downloadedFile.getName();
+                    String baseName = origName.substring(0, origName.lastIndexOf('.'));
+                    File[] matchingFiles = dir.listFiles((d, name) -> name.startsWith(baseName) && !name.equals(origName));
                     if (matchingFiles != null && matchingFiles.length > 0) {
                         downloadedFile = matchingFiles[0];
                         log.info("yt-dlp saved file with a different extension: {}", downloadedFile.getAbsolutePath());
