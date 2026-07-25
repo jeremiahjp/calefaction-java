@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 @Component
 public class SolarCommand implements SlashCommand {
@@ -91,7 +92,9 @@ public class SolarCommand implements SlashCommand {
     }
 
     private void handleOverview(SlashCommandInteractionEvent event) {
-        solarEdgeService.getOverview().subscribe(root -> {
+        solarEdgeService.getOverview()
+                .switchIfEmpty(Mono.error(new RuntimeException("Empty response")))
+                .subscribe(root -> {
             try {
                 Overview overview = root.overview();
                 double currentPowerKw = overview.currentPower().power() / 1000.0;
@@ -114,12 +117,13 @@ public class SolarCommand implements SlashCommand {
             } catch (Exception e) {
                 event.getHook().sendMessage("Error parsing overview data: " + e.getMessage()).queue();
             }
-        }, error -> event.getHook().sendMessage("Could not fetch SolarEdge data: " + error.getMessage()).queue(),
-                () -> event.getHook().sendMessage("Could not fetch SolarEdge data (Empty response).").queue());
+        }, error -> event.getHook().sendMessage("Could not fetch SolarEdge data: " + error.getMessage()).queue());
     }
 
     private void handleDetails(SlashCommandInteractionEvent event) {
-        solarEdgeService.getDetails().subscribe(root -> {
+        solarEdgeService.getDetails()
+                .switchIfEmpty(Mono.error(new RuntimeException("Empty response")))
+                .subscribe(root -> {
             try {
                 Details details = root.details();
                 EmbedBuilder eb = new EmbedBuilder();
@@ -134,8 +138,7 @@ public class SolarCommand implements SlashCommand {
             } catch (Exception e) {
                 event.getHook().sendMessage("Error parsing details: " + e.getMessage()).queue();
             }
-        }, error -> event.getHook().sendMessage("Could not fetch details: " + error.getMessage()).queue(),
-                () -> event.getHook().sendMessage("Could not fetch details (Empty response).").queue());
+        }, error -> event.getHook().sendMessage("Could not fetch details: " + error.getMessage()).queue());
     }
 
     private void handleEnergy(SlashCommandInteractionEvent event) {
@@ -143,7 +146,9 @@ public class SolarCommand implements SlashCommand {
         LocalDate end = LocalDate.now();
         LocalDate start = end.minusDays(30);
 
-        solarEdgeService.getEnergy(start.toString(), end.toString(), unit).subscribe(root -> {
+        solarEdgeService.getEnergy(start.toString(), end.toString(), unit)
+                .switchIfEmpty(Mono.error(new RuntimeException("Empty response")))
+                .subscribe(root -> {
             try {
                 Energy energy = root.energy();
                 List<DateValue> values = energy.values();
@@ -177,8 +182,7 @@ public class SolarCommand implements SlashCommand {
             } catch (Exception e) {
                 event.getHook().sendMessage("Error parsing energy data: " + e.getMessage()).queue();
             }
-        }, error -> event.getHook().sendMessage("Could not fetch energy data: " + error.getMessage()).queue(),
-                () -> event.getHook().sendMessage("Could not fetch energy data (Empty response).").queue());
+        }, error -> event.getHook().sendMessage("Could not fetch energy data: " + error.getMessage()).queue());
     }
 
     private void handlePower(SlashCommandInteractionEvent event) {
@@ -187,7 +191,9 @@ public class SolarCommand implements SlashCommand {
         String startTime = dateStr + " 00:00:00";
         String endTime = dateStr + " 23:59:59";
 
-        solarEdgeService.getPower(startTime, endTime).subscribe(root -> {
+        solarEdgeService.getPower(startTime, endTime)
+                .switchIfEmpty(Mono.error(new RuntimeException("Empty response")))
+                .subscribe(root -> {
             try {
                 Power power = root.power();
                 List<DateValue> values = power.values();
@@ -218,12 +224,13 @@ public class SolarCommand implements SlashCommand {
             } catch (Exception e) {
                 event.getHook().sendMessage("Error parsing power data: " + e.getMessage()).queue();
             }
-        }, error -> event.getHook().sendMessage("Could not fetch power data: " + error.getMessage()).queue(),
-                () -> event.getHook().sendMessage("Could not fetch power data (Empty response).").queue());
+        }, error -> event.getHook().sendMessage("Could not fetch power data: " + error.getMessage()).queue());
     }
 
     private void handleFlow(SlashCommandInteractionEvent event) {
-        solarEdgeService.getCurrentPowerFlow().subscribe(root -> {
+        solarEdgeService.getCurrentPowerFlow()
+                .switchIfEmpty(Mono.error(new RuntimeException("Empty response")))
+                .subscribe(root -> {
             try {
                 PowerFlow flow = root.siteCurrentPowerFlow();
                 String unit = flow.unit();
@@ -246,12 +253,13 @@ public class SolarCommand implements SlashCommand {
             } catch (Exception e) {
                 event.getHook().sendMessage("Error parsing power flow: " + e.getMessage()).queue();
             }
-        }, error -> event.getHook().sendMessage("Could not fetch power flow: " + error.getMessage()).queue(),
-                () -> event.getHook().sendMessage("Could not fetch power flow (Empty response).").queue());
+        }, error -> event.getHook().sendMessage("Could not fetch power flow: " + error.getMessage()).queue());
     }
 
     private void handleInventory(SlashCommandInteractionEvent event) {
-        solarEdgeService.getInventory().subscribe(root -> {
+        solarEdgeService.getInventory()
+                .switchIfEmpty(Mono.error(new RuntimeException("Empty response")))
+                .subscribe(root -> {
             try {
                 Inventory inventory = root.inventory();
                 EmbedBuilder eb = new EmbedBuilder();
@@ -267,12 +275,13 @@ public class SolarCommand implements SlashCommand {
             } catch (Exception e) {
                 event.getHook().sendMessage("Error parsing inventory: " + e.getMessage()).queue();
             }
-        }, error -> event.getHook().sendMessage("Could not fetch inventory: " + error.getMessage()).queue(),
-                () -> event.getHook().sendMessage("Could not fetch inventory (Empty response).").queue());
+        }, error -> event.getHook().sendMessage("Could not fetch inventory: " + error.getMessage()).queue());
     }
 
     private void handleBenefits(SlashCommandInteractionEvent event) {
-        solarEdgeService.getEnvBenefits().subscribe(root -> {
+        solarEdgeService.getEnvBenefits()
+                .switchIfEmpty(Mono.error(new RuntimeException("Empty response")))
+                .subscribe(root -> {
             try {
                 EnvBenefits env = root.envBenefits();
                 EmbedBuilder eb = new EmbedBuilder();
@@ -291,7 +300,6 @@ public class SolarCommand implements SlashCommand {
             } catch (Exception e) {
                 event.getHook().sendMessage("Error parsing benefits: " + e.getMessage()).queue();
             }
-        }, error -> event.getHook().sendMessage("Could not fetch benefits: " + error.getMessage()).queue(),
-                () -> event.getHook().sendMessage("Could not fetch benefits (Empty response).").queue());
+        }, error -> event.getHook().sendMessage("Could not fetch benefits: " + error.getMessage()).queue());
     }
 }

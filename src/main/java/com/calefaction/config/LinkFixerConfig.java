@@ -21,6 +21,21 @@ public class LinkFixerConfig {
         this.enabled = enabled;
     }
 
+    public boolean toggleGlobal() {
+        this.enabled = !this.enabled;
+        return this.enabled;
+    }
+
+    public boolean toggleDomain(String pattern) {
+        for (DomainConfig dc : domains) {
+            if (dc.getPattern().equalsIgnoreCase(pattern)) {
+                dc.setEnabled(!dc.isEnabled());
+                return dc.isEnabled();
+            }
+        }
+        throw new IllegalArgumentException("Domain pattern not found: " + pattern);
+    }
+
     public String getMode() {
         return mode;
     }
