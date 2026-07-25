@@ -23,6 +23,7 @@ public class VideoDownloadService {
                 ProcessBuilder pb = new ProcessBuilder(
                         "yt-dlp",
                         "--no-playlist",
+                        "--no-progress",
                         "--max-filesize", "25M",
                         "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
                         "--merge-output-format", "mp4",
@@ -33,14 +34,26 @@ public class VideoDownloadService {
                 pb.redirectErrorStream(true);
                 Process process = pb.start();
 
+                String output = new String(process.getInputStream().readAllBytes());
+                log.info("yt-dlp output:\n{}", output);
+
                 int exitCode = process.waitFor();
                 if (exitCode != 0) {
-                    throw new RuntimeException("yt-dlp exited with code " + exitCode);
+                    throw new RuntimeException("yt-dlp exited with code " + exitCode + "\nOutput: " + output);
                 }
 
                 File downloadedFile = new File(outputPath);
                 if (!downloadedFile.exists()) {
-                    throw new RuntimeException("yt-dlp succeeded but file was not found at " + outputPath);
+                    // Try to find if it saved with a different extension
+                    File dir = downloadedFile.getParentFile();
+                    String baseName = downloadedFile.getName().substring(0, downloadedFile.getName().lastIndexOf('.'));
+                    File[] matchingFiles = dir.listFiles((d, name) -> name.startsWith(baseName) && !name.equals(downloadedFile.getName()));
+                    if (matchingFiles != null && matchingFiles.length > 0) {
+                        downloadedFile = matchingFiles[0];
+                        log.info("yt-dlp saved file with a different extension: {}", downloadedFile.getAbsolutePath());
+                    } else {
+                        throw new RuntimeException("yt-dlp succeeded but file was not found at " + outputPath + "\nOutput: " + output);
+                    }
                 }
 
                 return downloadedFile;
