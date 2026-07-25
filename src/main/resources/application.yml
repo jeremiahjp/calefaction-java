@@ -126,6 +126,7 @@ llm:
 
 link-fixer:
   enabled: true
+  mode: download
   domains:
     - pattern: twitter.com
       replacement: fxtwitter.com
