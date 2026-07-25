@@ -30,9 +30,8 @@ public class GrokTtsService {
         }
 
         Map<String, Object> requestBody = Map.of(
-                "model", "grok-tts",
-                "input", text,
-                "voice", voice
+                "text", text,
+                "voice_id", voice
         );
 
         log.info("[Grok TTS] Requesting speech for text of length {}, voice: {}", text.length(), voice);
