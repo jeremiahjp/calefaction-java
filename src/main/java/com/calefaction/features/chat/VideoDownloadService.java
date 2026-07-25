@@ -51,7 +51,9 @@ public class VideoDownloadService {
                     File[] matchingFiles = dir.listFiles((d, name) -> name.startsWith(baseName)
                             && !name.equals(origName)
                             && !name.endsWith(".part")
-                            && !name.endsWith(".ytdl"));
+                            && !name.endsWith(".ytdl")
+                            && !name.endsWith(".m4a")
+                            && !name.endsWith(".mp3"));
                     if (matchingFiles != null && matchingFiles.length > 0) {
                         downloadedFile = matchingFiles[0];
                         log.info("yt-dlp saved file with a different extension: {}", downloadedFile.getAbsolutePath());

@@ -88,10 +88,7 @@ public class LinkFixerService extends ListenerAdapter {
                                         }
                                     );
                         }).exceptionally(ex -> {
-                            log.error("Failed to download video from {}", url, ex);
-                            event.getMessage().reply("❌ Sorry, I couldn't download the video from that link. It might be too large (Discord limits bots to 25MB) or the platform is blocking downloads.")
-                                    .setAllowedMentions(java.util.Collections.emptyList())
-                                    .queue();
+                            log.error("Failed to download video from {}: {}", url, ex.getMessage());
                             return null;
                         });
                     }
