@@ -212,10 +212,14 @@ public class ContextoRenderer {
     public static String buildScorecard(ContextoSession session, User user) {
         StringBuilder sb = new StringBuilder();
         String userMention = user != null ? user.getAsMention() : "Player";
+        String secretWord = session.getSecretWord() != null ? session.getSecretWord().trim().toUpperCase() : "";
 
         if (session.isWon()) {
             sb.append(String.format("🧩 **Contexto #%d**\n", session.getGameId()));
             sb.append(String.format("%s found the secret word in **%d** guesses!\n", userMention, session.getTotalGuesses()));
+            if (!secretWord.isEmpty()) {
+                sb.append(String.format("The secret word was **%s**! 🎉\n", secretWord));
+            }
             if (!session.getGuesses().isEmpty()) {
                 sb.append(String.format("🟢 %d  🟡 %d  🔴 %d\n", session.getGreenCount(), session.getYellowCount(), session.getRedCount()));
             }
@@ -225,6 +229,9 @@ public class ContextoRenderer {
         } else {
             sb.append(String.format("🧩 **Contexto #%d**\n", session.getGameId()));
             sb.append(String.format("%s gave up after **%d** guesses.\n", userMention, session.getTotalGuesses()));
+            if (!secretWord.isEmpty()) {
+                sb.append(String.format("The secret word was **%s**.\n", secretWord));
+            }
             if (!session.getGuesses().isEmpty()) {
                 sb.append(String.format("🟢 %d  🟡 %d  🔴 %d\n", session.getGreenCount(), session.getYellowCount(), session.getRedCount()));
             }
@@ -239,17 +246,20 @@ public class ContextoRenderer {
         String userTag = user != null ? user.getEffectiveName() : "Player";
         String userMention = user != null ? user.getAsMention() : "Player";
         String avatarUrl = user != null ? user.getEffectiveAvatarUrl() : null;
+        String secretWord = session.getSecretWord() != null ? session.getSecretWord().trim().toUpperCase() : "";
 
         eb.setTitle(String.format("🧩 Contexto #%d", session.getGameId()));
 
         if (session.isWon()) {
             eb.setColor(new Color(46, 204, 113)); // Emerald green
+            String wordLine = !secretWord.isEmpty() ? String.format("\nThe secret word was **%s**! 🎉", secretWord) : " 🎉";
             eb.setDescription(String.format(
-                    "%s found the secret word in **%d** guesses! 🎉", userMention, session.getTotalGuesses()));
+                    "%s found the secret word in **%d** guesses!%s", userMention, session.getTotalGuesses(), !secretWord.isEmpty() ? wordLine : ""));
         } else {
             eb.setColor(new Color(231, 76, 60)); // Red
+            String wordLine = !secretWord.isEmpty() ? String.format("\nThe secret word was **%s**.", secretWord) : "";
             eb.setDescription(String.format(
-                    "%s gave up after **%d** guesses.", userMention, session.getTotalGuesses()));
+                    "%s gave up after **%d** guesses.%s", userMention, session.getTotalGuesses(), wordLine));
         }
 
         // Guess breakdown field
