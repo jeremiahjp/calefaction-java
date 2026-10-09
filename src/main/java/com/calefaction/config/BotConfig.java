@@ -1,7 +1,5 @@
 package com.calefaction.config;
 
-import com.calefaction.core.CommandRegistry;
-import com.calefaction.features.chat.LinkFixerService;
 import java.util.Arrays;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -22,21 +20,25 @@ public class BotConfig {
     private String token;
 
     @Bean
-    public JDA jda(CommandRegistry commandRegistry, LinkFixerService linkFixerService) throws InterruptedException {
+    public JDA jda(java.util.List<net.dv8tion.jda.api.hooks.ListenerAdapter> listeners) throws InterruptedException {
         if (token == null || token.isEmpty()) {
             log.error("Discord token is null or empty!");
             throw new IllegalArgumentException(
                     "Discord token must be provided in application.yml or DISCORD_TOKEN env var");
         }
 
-        JDA jda = JDABuilder
+        var builder = JDABuilder
                 .createLight(token, Arrays.asList(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT))
-                .addEventListeners(commandRegistry, linkFixerService)
-                .setActivity(Activity.playing("/help"))
-                .build();
+                .setActivity(Activity.playing("/help"));
 
+        for (var listener : listeners) {
+            builder.addEventListeners(listener);
+            log.info("Registered JDA listener: {}", listener.getClass().getSimpleName());
+        }
+
+        JDA jda = builder.build();
         jda.awaitReady();
-        log.info("JDA initialized and ready!");
+        log.info("JDA initialized and ready with {} listeners!", listeners.size());
         return jda;
     }
 }
