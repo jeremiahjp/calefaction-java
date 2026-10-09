@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.calefaction"
-version = "1.0.0-SNAPSHOT"
+version = "1.4.20-SNAPSHOT"
 
 java {
     toolchain {
@@ -28,12 +28,15 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("net.dv8tion:JDA:6.5.0")
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.4")
     implementation("com.google.maps:google-maps-services:2.2.0")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
+    runtimeOnly("org.postgresql:postgresql:42.7.5")
     implementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("com.h2database:h2:2.3.232")
     runtimeOnly("io.netty.incubator:netty-incubator-codec-native-quic:0.0.75.Final:linux-x86_64")
 }
 

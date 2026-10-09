@@ -1,8 +1,11 @@
 package com.calefaction.core;
 
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 public interface SlashCommand {
@@ -16,5 +19,14 @@ public interface SlashCommand {
     }
 
     default void onButton(ButtonInteractionEvent event) {
+    }
+
+    default void onModal(ModalInteractionEvent event) {
+    }
+
+    default void onEntitySelect(EntitySelectInteractionEvent event) {
+    }
+
+    default void onStringSelect(StringSelectInteractionEvent event) {
     }
 }

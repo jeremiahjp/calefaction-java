@@ -1,6 +1,5 @@
 package com.calefaction.features.games;
 
-import com.calefaction.config.BotProperties;
 import com.calefaction.core.CommandRegistry;
 import com.calefaction.core.SlashCommand;
 import jakarta.annotation.PostConstruct;
@@ -32,7 +31,6 @@ public class SlotsCommand implements SlashCommand {
 
     private static final Logger log = LoggerFactory.getLogger(SlotsCommand.class);
     private final CommandRegistry commandRegistry;
-    private final BotProperties botProperties;
     private final Random random = new Random();
     private static final ExecutorService SLOTS_EXECUTOR = Executors.newCachedThreadPool();
     private static final List<String> EMOJIS = List.of(
@@ -41,9 +39,8 @@ public class SlotsCommand implements SlashCommand {
             "⭐", "🍀", "👑", "💰", "🎲", "🔥");
     private static final String SPINNING = "🌀";
 
-    public SlotsCommand(CommandRegistry commandRegistry, BotProperties botProperties) {
+    public SlotsCommand(CommandRegistry commandRegistry) {
         this.commandRegistry = commandRegistry;
-        this.botProperties = botProperties;
     }
 
     @PostConstruct
@@ -89,7 +86,7 @@ public class SlotsCommand implements SlashCommand {
         }
     }
 
-    private void playSlots(InteractionHook hook, User user) {
+    public void playSlots(InteractionHook hook, User user) {
         CompletableFuture.runAsync(() -> runGameLoop(hook, user), SLOTS_EXECUTOR);
     }
 
@@ -115,18 +112,18 @@ public class SlotsCommand implements SlashCommand {
             if (result.triggeredFreeSpins) {
                 int totalFreeSpins = 10;
                 int currentFreeSpin = 0;
+                int maxFreeSpins = 50; // Safety cap to avoid runaway Discord rate limits
 
-                while (currentFreeSpin < totalFreeSpins) {
+                while (currentFreeSpin < totalFreeSpins && totalFreeSpins <= maxFreeSpins) {
                     currentFreeSpin++;
                     TimeUnit.SECONDS.sleep(1); // 1s Delay between spins
 
                     // Execute Free Spin
                     SpinResult fsResult = executeSpin(msg, user, currentFreeSpin, totalFreeSpins);
 
-                    // If re-triggered, extend?
+                    // If re-triggered, extend up to max cap
                     if (fsResult.triggeredFreeSpins) {
-                        totalFreeSpins += 10;
-                        // Optional notification?
+                        totalFreeSpins = Math.min(totalFreeSpins + 10, maxFreeSpins);
                     }
                 }
             }
@@ -146,63 +143,12 @@ public class SlotsCommand implements SlashCommand {
 
     private SpinResult executeSpin(Message msg, User user, int currentSpin, int totalSpins)
             throws InterruptedException {
-        // RTP Logic
-        double outcome = random.nextDouble();
-        String s1, s2, s3;
-        boolean triggeredFreeSpins = false;
-
-        boolean isDev = botProperties.isAdmin(user.getId());
-        boolean forceFree = isDev && random.nextDouble() < 0.5;
-
-        if (forceFree || outcome < 0.0076) {
-            if (forceFree) {
-                s1 = "🆓";
-                s2 = "🆓";
-                s3 = "🆓";
-                triggeredFreeSpins = true;
-            } else {
-                String symbol = EMOJIS.get(random.nextInt(EMOJIS.size()));
-                if (symbol.equals("🆓"))
-                    symbol = "💎";
-                s1 = symbol;
-                s2 = symbol;
-                s3 = symbol;
-            }
-        } else if (outcome < 0.0276) {
-            s1 = "🆓";
-            s2 = "🆓";
-            s3 = "🆓";
-            triggeredFreeSpins = true;
-        } else if (outcome < 0.2076) {
-            String match = EMOJIS.get(random.nextInt(EMOJIS.size()));
-            if (match.equals("🆓"))
-                match = "🍒";
-            String other;
-            do {
-                other = EMOJIS.get(random.nextInt(EMOJIS.size()));
-            } while (other.equals(match) || other.equals("🆓"));
-
-            int pos = random.nextInt(3);
-            if (pos == 0) {
-                s1 = match;
-                s2 = match;
-                s3 = other;
-            } else if (pos == 1) {
-                s1 = match;
-                s2 = other;
-                s3 = match;
-            } else {
-                s1 = other;
-                s2 = match;
-                s3 = match;
-            }
-        } else {
-            do {
-                s1 = EMOJIS.get(random.nextInt(EMOJIS.size()));
-                s2 = EMOJIS.get(random.nextInt(EMOJIS.size()));
-                s3 = EMOJIS.get(random.nextInt(EMOJIS.size()));
-            } while ((s1.equals(s2) && s2.equals(s3)) || (s1.equals(s2) || s2.equals(s3) || s1.equals(s3)));
-        }
+        // Fair, uniform RTP logic for all players
+        SpinOutcome spinOutcome = determineOutcome(random.nextDouble(), random);
+        String s1 = spinOutcome.s1();
+        String s2 = spinOutcome.s2();
+        String s3 = spinOutcome.s3();
+        boolean triggeredFreeSpins = spinOutcome.triggeredFreeSpins();
 
         boolean isFreeSpinTrigger = triggeredFreeSpins; // Alias
         boolean isSuspense = s1.equals(s2);
@@ -300,6 +246,65 @@ public class SlotsCommand implements SlashCommand {
         }
 
         return new SpinResult(isFreeSpinTrigger);
+    }
+
+    record SpinOutcome(String s1, String s2, String s3, boolean triggeredFreeSpins) {}
+
+    static SpinOutcome determineOutcome(double outcome, Random rng) {
+        String s1, s2, s3;
+        boolean triggeredFreeSpins = false;
+
+        if (outcome < 0.015) {
+            // Jackpot: 3 identical standard symbols (1.5% chance)
+            String symbol;
+            do {
+                symbol = EMOJIS.get(rng.nextInt(EMOJIS.size()));
+            } while (symbol.equals("🆓"));
+            s1 = symbol;
+            s2 = symbol;
+            s3 = symbol;
+        } else if (outcome < 0.050) {
+            // Bonus: 3 free spin scatters (3.5% chance)
+            s1 = "🆓";
+            s2 = "🆓";
+            s3 = "🆓";
+            triggeredFreeSpins = true;
+        } else if (outcome < 0.280) {
+            // Small win: 2 matching symbols (23.0% chance)
+            String match;
+            do {
+                match = EMOJIS.get(rng.nextInt(EMOJIS.size()));
+            } while (match.equals("🆓"));
+
+            String other;
+            do {
+                other = EMOJIS.get(rng.nextInt(EMOJIS.size()));
+            } while (other.equals(match) || other.equals("🆓"));
+
+            int pos = rng.nextInt(3);
+            if (pos == 0) {
+                s1 = match;
+                s2 = match;
+                s3 = other;
+            } else if (pos == 1) {
+                s1 = match;
+                s2 = other;
+                s3 = match;
+            } else {
+                s1 = other;
+                s2 = match;
+                s3 = match;
+            }
+        } else {
+            // Loss: 3 distinct symbols (72.0% chance)
+            do {
+                s1 = EMOJIS.get(rng.nextInt(EMOJIS.size()));
+                s2 = EMOJIS.get(rng.nextInt(EMOJIS.size()));
+                s3 = EMOJIS.get(rng.nextInt(EMOJIS.size()));
+            } while (s1.equals(s2) || s2.equals(s3) || s1.equals(s3));
+        }
+
+        return new SpinOutcome(s1, s2, s3, triggeredFreeSpins);
     }
 
     private String renderMachine(String s1, String s2, String s3) {

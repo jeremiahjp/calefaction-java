@@ -25,6 +25,9 @@ public class CommandRegistry extends ListenerAdapter {
     private final Map<String, SlashCommand> commands = new HashMap<>();
     private final Set<String> disabledCommands = ConcurrentHashMap.newKeySet();
 
+    public CommandRegistry() {
+    }
+
     public void register(SlashCommand command) {
         commands.put(command.getName(), command);
         log.info("Registered command: {}", command.getName());
@@ -54,22 +57,50 @@ public class CommandRegistry extends ListenerAdapter {
         return disabledCommands.contains(name);
     }
 
+    private volatile net.dv8tion.jda.api.JDA jda;
+
     @Override
     public void onReady(@NotNull ReadyEvent event) {
+        this.jda = event.getJDA();
+        syncCommandsWithDiscord();
+    }
+
+    @org.springframework.context.event.EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
+    public void onApplicationReady() {
+        syncCommandsWithDiscord();
+    }
+
+    public synchronized void syncCommandsWithDiscord() {
+        if (jda == null || commands.isEmpty()) {
+            return;
+        }
         List<CommandData> commandDataList = new ArrayList<>();
         for (SlashCommand command : commands.values()) {
             commandDataList.add(command.getCommandData());
         }
-        event.getJDA().updateCommands().addCommands(commandDataList).queue(
-                success -> log.info("Successfully registered {} commands with Discord", commandDataList.size()),
-                error -> log.error("Failed to register commands", error));
+        // Always include the Activity PRIMARY_ENTRY_POINT so Discord bulk overwrite preserves the native launcher
+        commandDataList.add(new PrimaryEntryPointCommandData());
+
+        log.info("Preparing to register {} commands (including Activity entry point) with Discord: {}", commandDataList.size(),
+                commands.keySet());
+        jda.updateCommands().addCommands(commandDataList).queue(
+                success -> log.info("Successfully registered {} global commands with Discord!", success.size()),
+                error -> log.error("Failed to register global commands with Discord", error));
     }
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        SlashCommand command = commands.get(event.getName());
+        String name = event.getName();
+        if ("launch".equals(name)) {
+            SlashCommand contexto = commands.get("contexto");
+            if (contexto != null) {
+                contexto.execute(event);
+                return;
+            }
+        }
+        SlashCommand command = commands.get(name);
         if (command != null) {
-            if (isCommandDisabled(event.getName())) {
+            if (isCommandDisabled(name)) {
                 event.reply("This command is currently disabled.").setEphemeral(true).queue();
             } else {
                 command.execute(event);
@@ -97,6 +128,48 @@ public class CommandRegistry extends ListenerAdapter {
                 event.reply("This command is currently disabled.").setEphemeral(true).queue();
             } else {
                 command.onButton(event);
+            }
+        }
+    }
+
+    @Override
+    public void onModalInteraction(@NotNull net.dv8tion.jda.api.events.interaction.ModalInteractionEvent event) {
+        String modalId = event.getModalId();
+        String commandName = modalId.split(":")[0];
+        SlashCommand command = commands.get(commandName);
+        if (command != null) {
+            if (isCommandDisabled(commandName)) {
+                event.reply("This command is currently disabled.").setEphemeral(true).queue();
+            } else {
+                command.onModal(event);
+            }
+        }
+    }
+
+    @Override
+    public void onEntitySelectInteraction(@NotNull net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent event) {
+        String componentId = event.getComponentId();
+        String commandName = componentId.split(":")[0];
+        SlashCommand command = commands.get(commandName);
+        if (command != null) {
+            if (isCommandDisabled(commandName)) {
+                event.reply("This command is currently disabled.").setEphemeral(true).queue();
+            } else {
+                command.onEntitySelect(event);
+            }
+        }
+    }
+
+    @Override
+    public void onStringSelectInteraction(@NotNull net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent event) {
+        String componentId = event.getComponentId();
+        String commandName = componentId.split(":")[0];
+        SlashCommand command = commands.get(commandName);
+        if (command != null) {
+            if (isCommandDisabled(commandName)) {
+                event.reply("This command is currently disabled.").setEphemeral(true).queue();
+            } else {
+                command.onStringSelect(event);
             }
         }
     }

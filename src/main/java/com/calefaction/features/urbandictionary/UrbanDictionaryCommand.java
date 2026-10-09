@@ -46,29 +46,32 @@ public class UrbanDictionaryCommand implements SlashCommand {
 
         event.deferReply().queue();
 
-        urbanDictionaryService.define(term).subscribe(def -> {
-            // Remove brackets [] typically found in UD definitions
-            String cleanDefinition = def.definition().replace("[", "").replace("]", "");
-            String cleanExample = def.example().replace("[", "").replace("]", "");
+        urbanDictionaryService.define(term)
+                .switchIfEmpty(reactor.core.publisher.Mono.defer(() -> {
+                    event.getHook().sendMessage("Could not find definition for: " + term).queue();
+                    return reactor.core.publisher.Mono.empty();
+                }))
+                .subscribe(def -> {
+                    // Remove brackets [] typically found in UD definitions
+                    String cleanDefinition = def.definition().replace("[", "").replace("]", "");
+                    String cleanExample = def.example().replace("[", "").replace("]", "");
 
-            // Truncate if too long (Discord limits)
-            if (cleanDefinition.length() > 1000)
-                cleanDefinition = cleanDefinition.substring(0, 990) + "...";
-            if (cleanExample.length() > 500)
-                cleanExample = cleanExample.substring(0, 490) + "...";
+                    // Truncate if too long (Discord limits)
+                    if (cleanDefinition.length() > 1000)
+                        cleanDefinition = cleanDefinition.substring(0, 990) + "...";
+                    if (cleanExample.length() > 500)
+                        cleanExample = cleanExample.substring(0, 490) + "...";
 
-            EmbedBuilder eb = new EmbedBuilder();
-            eb.setTitle(def.word(), def.permalink());
-            eb.setDescription(cleanDefinition);
-            eb.addField("Example", cleanExample, false);
-            eb.setFooter("By " + def.author() + " | \uD83D\uDC4D " + def.thumbsUp());
-            eb.setColor(new Color(29, 36, 57)); // Urban Dictionary Blue-ish
+                    EmbedBuilder eb = new EmbedBuilder();
+                    eb.setTitle(def.word(), def.permalink());
+                    eb.setDescription(cleanDefinition);
+                    eb.addField("Example", cleanExample, false);
+                    eb.setFooter("By " + def.author() + " | \uD83D\uDC4D " + def.thumbsUp());
+                    eb.setColor(new Color(29, 36, 57)); // Urban Dictionary Blue-ish
 
-            event.getHook().sendMessageEmbeds(eb.build()).queue();
-        }, error -> {
-            event.getHook().sendMessage("Could not fetch definition: " + error.getMessage()).queue();
-        }, () -> {
-            event.getHook().sendMessage("Could not find definition for: " + term).queue();
-        });
+                    event.getHook().sendMessageEmbeds(eb.build()).queue();
+                }, error -> {
+                    event.getHook().sendMessage("Could not fetch definition: " + error.getMessage()).queue();
+                });
     }
 }

@@ -3,12 +3,31 @@ spring:
     name: calefaction
   main:
     web-application-type: none
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://${POSTGRES_HOST:192.168.68.84}:${POSTGRES_PORT:5432}/${POSTGRES_DB:calefaction}}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:ha_postgres_secure_pass_2026}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 3000
 
 chat:
   message-chunk-size: 1800  # Discord message limit is 2000, leave room for formatting
 
 bot:
   admin-user-ids:
+    - "94220323628523520"
+
+contexto:
+  timezone: ${CONTEXTO_TIMEZONE:America/Chicago}
+
+drops:
+  enabled: ${DROPS_ENABLED:true}
+  poll-interval-seconds: ${DROPS_POLL_INTERVAL:45}
+  channel-ids: ${DROPS_CHANNEL_IDS:}
+  mention-user-ids:
     - "94220323628523520"
 
 discord:
