@@ -62,7 +62,7 @@ public class PrimaryEntryPointCommandData implements CommandData {
     @NotNull
     @Override
     public Command.Type getType() {
-        return Command.Type.UNKNOWN;
+        return Command.Type.SLASH;
     }
 
     @NotNull

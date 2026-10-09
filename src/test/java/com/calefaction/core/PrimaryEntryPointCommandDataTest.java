@@ -37,6 +37,7 @@ class PrimaryEntryPointCommandDataTest {
     void testContextsAndIntegrations() {
         PrimaryEntryPointCommandData command = new PrimaryEntryPointCommandData("custom_launch", "Custom Description", 2);
         assertEquals("custom_launch", command.getName());
+        assertEquals(net.dv8tion.jda.api.interactions.commands.Command.Type.SLASH, command.getType());
         assertFalse(command.isNSFW());
         assertTrue(command.getContexts().contains(InteractionContextType.GUILD));
         assertTrue(command.getContexts().contains(InteractionContextType.BOT_DM));

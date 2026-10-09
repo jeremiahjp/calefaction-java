@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.calefaction"
-version = "1.4.21-SNAPSHOT"
+version = "1.4.22-SNAPSHOT"
 
 java {
     toolchain {
